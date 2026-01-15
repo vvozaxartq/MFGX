@@ -1,0 +1,2203 @@
+# MFGX 系統操作說明 (MFGX System Operation Manual)
+
+## Part 1：系統操作說明
+## 目錄 (Table of Contents)
+
+1. [系統概述 (System Overview)](#系統概述-system-overview)
+2. [系統架構 (System Architecture)](#系統架構-system-architecture)
+3. [系統需求 (System Requirements)](#系統需求-system-requirements)
+4. [使用者介面說明 (User Interface Description)](#使用者介面說明-user-interface-description)
+5. [基本操作流程 (Basic Operation Workflow)](#基本操作流程-basic-operation-workflow)
+6. [主要功能說明 (Main Functions)](#主要功能說明-main-functions)
+7. [操作模式 (Operation Modes)](#操作模式-operation-modes)
+8. [注意事項 (Precautions)](#注意事項-precautions)
+9. [故障排除 (Troubleshooting)](#故障排除-troubleshooting)
+
+---
+---
+
+## Part 2：AutoTestSystem.Script 類別說明文件
+
+# AutoTestSystem.Script 類別說明文件
+
+本文件詳細說明 `AutoTestSystem.Script` 命名空間下的所有類別，包含類別功能說明以及各個屬性的 Category 和 Description 描述。
+
+---
+
+## 目錄
+
+1. [基底類別 (Base Classes)](#基底類別-base-classes)
+2. [控制設備腳本 (Control Device Scripts)](#控制設備腳本-control-device-scripts)
+3. [DUT 相關腳本 (DUT Related Scripts)](#dut-相關腳本-dut-related-scripts)
+4. [IO 相關腳本 (IO Related Scripts)](#io-相關腳本-io-related-scripts)
+5. [Extra 功能腳本 (Extra Scripts)](#extra-功能腳本-extra-scripts)
+6. [CCD 相關腳本 (CCD Related Scripts)](#ccd-相關腳本-ccd-related-scripts)
+7. [Motion 相關腳本 (Motion Related Scripts)](#motion-相關腳本-motion-related-scripts)
+8. [Container 容器腳本 (Container Scripts)](#container-容器腳本-container-scripts)
+9. [Pro 進階腳本 (Pro Scripts)](#pro-進階腳本-pro-scripts)
+
+---
+## 系統概述 (System Overview)
+
+MFGX 是一個自動化測試系統 (Automatic Test System)，專為製造環境設計，用於執行產品測試流程和品質控制。
+
+### 主要特點 (Key Features)
+
+- **多設備支援 (Multi-Device Support)**：支援同時控制和測試多個 DUT (Device Under Test，待測設備)
+- **靈活的測試腳本 (Flexible Test Scripts)**：基於 [AutoTestSystem.Script]框架的可擴展測試腳本系統，提供豐富的腳本類別庫
+- **即時監控 (Real-time Monitoring)**：即時顯示測試進度、結果和統計資訊
+- **權限管理 (Permission Management)**：支援多層級使用者權限控制
+- **資料記錄 (Data Logging)**：完整的測試資料記錄和報表功能
+- **多種運行模式 (Multiple Run Modes)**：支援工程模式、點檢模式、生產模式等
+
+---
+
+## 系統架構 (System Architecture)
+
+### 框架結構 (Framework Structure)
+
+```
+MFGX 系統
+├── 使用者介面層 (UI Layer)
+│   ├── MFGX 主視窗 (Main Window)
+│   ├── 登入介面 (Login Form)
+│   ├── 配方管理 (Recipe Management)
+│   └── 儀表板 (Dashboard)
+│
+├── 業務邏輯層 (Business Logic Layer)
+│   ├── RecipeManagement (配方管理)
+│   ├── GlobalNew (全域狀態管理)
+│   ├── DUT_BASE (待測設備基底類別)
+│   └── RotaryTestController (圓盤測試控制器)
+│
+├── 腳本執行層 (Script Execution Layer)
+│   ├── Container (容器類別)
+│   │   ├── Container_MainThread (主執行緒容器)
+│   │   ├── Container_Sequences (序列容器)
+│   │   ├── Container_JIG_INIT (治具初始化容器)
+│   │   └── Container_Thread (執行緒容器)
+│   │
+│   └── Script (腳本類別) - 詳見 [AutoTestSystem.Script 說明](#script-doc)
+│       ├── ScriptDUTBase (DUT 腳本基底類別)
+│       ├── ScriptIOBase (IO 腳本基底類別)
+│       ├── Script_Extra_Base (額外功能腳本基底類別)
+│       ├── Script_ControlDevice_Base (控制設備腳本基底類別)
+│       ├── Script_CCD_Base (CCD 腳本基底類別)
+│       └── Script_1MotBase (馬達腳本基底類別)
+│
+├── 設備層 (Device Layer)
+│   ├── DUT 設備 (DUT Devices)
+│   ├── IO 設備 (IO Devices)
+│   ├── 控制設備 (Control Devices)
+│   ├── CCD 相機 (CCD Cameras)
+│   └── Motion 馬達 (Motion Motors)
+│
+└── 資料層 (Data Layer)
+    ├── 配置檔案 (Configuration Files - INI)
+    ├── 測試記錄 (Test Logs)
+    ├── 資料庫 (Database - SQLite)
+    └── 報表 (Reports)
+```
+
+### 核心元件 (Core Components)
+
+| 元件名稱 | 說明 | 主要功能 |
+|---------|------|---------|
+| **MFGX** | 主視窗類別 | 系統主介面，負責整體流程控制與 UI 呈現 |
+| **GlobalNew** | 全域狀態管理 | 管理系統全域變數、設定、狀態旗標 |
+| **RecipeManagement** | 配方管理 | 載入、管理測試配方（Recipe）與設備配置 |
+| **DUT_BASE** | 待測設備基底類別 | 所有待測設備的基底類別，提供標準測試流程 |
+| **Dashboard** | 儀表板控制項 | 顯示個別 DUT 的測試狀態、結果與日誌 |
+| **ScriptBase** | 腳本基底類別 | 所有測試腳本的基底類別 |
+| **Container** | 容器類別 | 組織測試流程的容器，支援序列、並行等執行方式 |
+
+---
+
+## 系統需求 (System Requirements)
+
+### 軟體需求 (Software Requirements)
+
+- **作業系統 (Operating System)**：Windows 7 或更新版本
+- **.NET Framework**：.NET Framework 4.7.2 或更新版本
+
+### 硬體需求 (Hardware Requirements)
+
+- **處理器 (Processor)**：Intel Core i3 或更高
+- **記憶體 (RAM)**：4GB 或更多
+- **硬碟空間 (Disk Space)**：至少 1GB 可用空間（用於系統和日誌）
+- **顯示器 (Display)**：1280x720 或更高解析度
+- **其他設備 (Other Devices)**：依測試需求配置（如 IO 卡、相機、馬達控制器等）
+
+---
+
+## 使用者介面說明 (User Interface Description)
+
+### 主視窗佈局 (Main Window Layout)
+
+<img width="1920" height="1080" alt="主畫面" src="https://github.com/user-attachments/assets/e465f403-ca82-415c-9428-dac5b11655f9" />
+
+### 主要控制按鈕 (Main Control Buttons)
+
+<img width="589" height="271" alt="控制介面" src="https://github.com/user-attachments/assets/91a87ac1-80c7-4549-97d6-7d38fb94ec39" />
+
+### 資訊顯示區域 (Information Display Areas)
+
+#### 1. 系統資訊面板 (System Information Panel)
+
+<img width="618" height="378" alt="系統資訊" src="https://github.com/user-attachments/assets/f0c39b66-39ef-45f9-b83b-38cd12c37376" />
+
+#### 2. 儀表板 (Dashboard)
+
+<img width="1760" height="989" alt="儀錶板" src="https://github.com/user-attachments/assets/737a263c-f246-4e6c-b2a0-3b8ab3624053" />
+
+#### 3. 狀態列 (Status Bar)
+
+<img width="708" height="142" alt="狀態列" src="https://github.com/user-attachments/assets/fdbe1ecc-ce10-4ab4-ad4d-495393a15a6f" />
+
+---
+
+## 基本操作流程 (Basic Operation Workflow)
+
+### 標準測試流程 (Standard Test Workflow)
+```
+┌─────────────────┐
+│  1. 系統啟動     │
+│  (System Start) │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  2. 使用者登入   │
+│  (User Login)   │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  3. 選擇配方     │
+│(Select Recipe)  │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  4. 初始化設備   │
+│(Initialize &    │
+│ Home Process)   │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  5. 輸入 SN     │
+│  (Enter SN)     │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  6. 啟動測試     │
+│  (Start Test)   │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  7. 查看結果     │
+│ (View Results)  │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  8. 重複或結束   │
+│(Repeat or End)  │
+└─────────────────┘
+```
+
+### 詳細操作步驟 (Detailed Operation Steps)
+
+#### 步驟 1：系統啟動 (System Start)
+
+<img width="1920" height="1080" alt="主畫面" src="https://github.com/user-attachments/assets/fdd84d27-bbce-404c-a043-5a3999e2303c" />
+
+1. 啟動 MFGX 應用程式
+2. 系統將自動載入上次使用的配方設定
+3. 視窗標題顯示：`MFGX - Version X.X.X.X - [配方名稱]`
+
+#### 步驟 2：使用者登入 (User Login)
+
+<img width="1920" height="1080" alt="使用者登入" src="https://github.com/user-attachments/assets/064b4acc-8012-4883-b15e-18804278bbf3" />
+
+1. 點擊 **👤 Login** 按鈕
+2. 輸入使用者帳號和密碼
+3. 登入成功後，系統資訊面板顯示當前使用者名稱
+4. 不同使用者等級擁有不同的權限：
+   - **rd**：研發人員，可使用工程模式
+   - **pe**：製程工程師，可使用點檢模式和維修功能
+   - **op**：操作員，僅可使用生產模式
+
+#### 步驟 3：新增及選擇配方 (Select Recipe)
+
+<img width="1920" height="1080" alt="選擇腳本" src="https://github.com/user-attachments/assets/aa3a787c-2751-411d-b7f8-e7d55c92c0b6" />
+<img width="778" height="448" alt="image" src="https://github.com/user-attachments/assets/6c56131e-7c5b-446f-b96b-99197ddcc597" />
+
+1. 點擊 **⚙️ Configure** 按鈕，需pe或rd以上權限才能打開此頁面。
+2. 新增按New按鈕，可建立新的測試處方流程：
+   - **Project (專案)**：填寫專案名稱例VO0301、V730。
+   - **Station (站別)**：填寫站別名稱例PCBA01、FT01。
+   - **Mode (模式)**：PROD（生產）/ ENG（工程）/ POINT_CHECK（點檢），測試用可先建立ENG模式進行流程編輯。
+   - **Fixture (治具)**：如果同一站位只有一台設備或治具請填J01，如果有多台請以J01、J02..進行填寫。
+   - **Version (版本)**：用於填寫腳本的版本可填V0.1
+   - **Memo (備註)**：可不填主要用於註解一些該腳本的注意事項。
+   完成後按Submit就會新增到流程列表中。
+3. 確認選擇列表中的流程，雙擊滑鼠兩下即可進入流程編輯頁面。
+4. 確認選擇列表中的流程，按按鈕Apply將選用該腳本載入到測試主頁面中並關閉視窗。
+5. Edit可修改已存在的腳本的專案名、站別、模式、治具及版本的資訊。
+6. Delete將刪除該腳本請確認後在點擊。
+
+
+**注意**：
+- 運行中無法更改配方
+- 需要適當的權限等級才能選擇特定模式
+#### 步驟 4：腳本編輯頁面
+**裝置視窗說明**
+1. 裝置編輯視窗:指的是會用到的所有通訊類應用裝置包含DUT或是治具設備的通訊物件參數編輯及新增
+2. 通訊裝置選擇及新增:選擇通訊類型後按Add按鈕加入到列表中。
+3. 儲存:編輯後請按Save按鈕儲存編輯內容。
+<img width="1006" height="627" alt="image" src="https://github.com/user-attachments/assets/3d659d4d-2b13-49ca-b416-cfe5b6634f18" />
+
+**環境變數**
+1. 測試時會用到的全域型變數或常數數值可以DUT物件裝置中設定，用於多工時也可設定不同裝置設定不同的變數值。
+2. 依圖中1點選DUT裝置後，圖2按EnvirVariable欄位點擊右側...按鈕開啟設定頁面。
+3. [SerialNumber]中可自定義序號變數名及格式卡控設定，如下可在[SerialNumber]下新增ProductSN變數，並且會在主測試視窗中自動新增序號視窗。
+4. [Path]中可設定多組備份路徑位置。將會在測試完後將數據LOG及CSV等備份到該路徑下，另外流程中如果有圖檔及文件要備份也可搭配流程控件Script_Extra_BackupQueue來做備份。
+5. 裝置列中必須要有一個或以上的DUT類的裝置用於做數據的儲存及變數的應用，且一個DUT會綁定主頁面測試的UI Dashboard介面呈現。
+<img width="1002" height="627" alt="image" src="https://github.com/user-attachments/assets/972678ef-7db9-439c-be41-63920733b4f9" />
+<img width="682" height="564" alt="image" src="https://github.com/user-attachments/assets/45fc60ee-36b5-4ecd-af35-54aad3af9224" />
+
+**變數宣告**
+
+<img width="955" height="625" alt="image" src="https://github.com/user-attachments/assets/0420bf5f-188e-4be1-97af-093ed41bd59a" />
+
+
+**多工位應用**
+
+<img width="1114" height="488" alt="image" src="https://github.com/user-attachments/assets/d834e9e6-600f-450c-a085-e74627664b83" />
+
+#### 流程視窗說明
+1. * 流程編輯視窗:指的是依Testplan編輯流程包含DUT測試項目及治具設備的動作控制流程其中也包含規格及流程跳轉等邏輯。
+2. * 腳本控件新增及選擇:選擇功能腳本加入到流程中。
+3. * 儲存:編輯後請按Save按鈕儲存編輯內容。
+<img width="942" height="628" alt="image" src="https://github.com/user-attachments/assets/ae0d769d-680e-4a4a-834a-22b1aacacaf4" />
+
+#### 步驟 5：常用裝置說明
+**DUT UART通訊裝置**
+<img width="1120" height="525" alt="image" src="https://github.com/user-attachments/assets/a9e634b7-faaf-4b5e-ae38-75c31efb7856" />
+
+
+**SSH 通訊裝置**
+
+<img width="1001" height="624" alt="image" src="https://github.com/user-attachments/assets/6fb2a736-1925-4ff7-bb85-7d2369e6180a" />
+
+#### 步驟 6：常用腳本控件說明
+**指令傳送解析功能腳本控件**
+<img width="1119" height="430" alt="image" src="https://github.com/user-attachments/assets/978792df-8079-466a-8812-58f0f2579037" />
+
+**容器控件**
+
+<img width="1120" height="462" alt="image" src="https://github.com/user-attachments/assets/2e60b021-ebe4-4c39-860f-5b61bad667ff" />
+
+**流程初始控件說明**
+
+<img width="845" height="356" alt="image" src="https://github.com/user-attachments/assets/973b5edc-93e1-4f5b-9da2-a0ad74aa3132" />
+
+
+#### 步驟 7：初始化設備 (Initialize & Home Process)
+
+<img width="1920" height="1080" alt="初始化" src="https://github.com/user-attachments/assets/5571c702-c1ed-41b9-9e48-249fe30611d4" />
+
+1. 點擊 **🏠 Home** 按鈕
+2. 系統將執行：
+   - **UnInit**：卸載現有設備
+   - **Init**：初始化所有設備
+   - **Home Process**：執行治具復歸流程（Container_JIG_INIT）
+3. 等待初始化完成
+4. 成功後，儀表板將顯示所有啟用的 DUT
+
+**注意**：
+- 初始化前必須先停止運行
+- 如有設備初始化失敗，系統會提示錯誤訊息
+- 必須等待 Home Process 成功完成後才能開始測試
+
+#### 步驟 8：輸入 SN (Enter SN)
+
+<img width="1920" height="1080" alt="輸入SN" src="https://github.com/user-attachments/assets/5d06ceff-2891-42bd-87f4-392ae0cc0bee" />
+
+有兩種輸入方式：
+
+**A. 手動輸入**
+1. 在 DUT 儀表板的 SN 輸入框中輸入序號
+2. 按 Enter 確認
+
+**B. 掃碼槍輸入**
+1. 將焦點移至對應 DUT 的區域
+2. 使用掃碼槍掃描產品條碼
+3. 系統自動識別並填入對應 DUT 的 SN 輸入框
+
+#### 步驟 9：啟動測試 (Start Test)
+
+<img width="1920" height="1080" alt="開始測試" src="https://github.com/user-attachments/assets/8eb7cff6-9743-4cec-88aa-b4b4d955748e" />
+
+**運行模式 1：標準模式**
+1. 確認所有 DUT 的 SN 已輸入
+2. 系統開始執行測試流程
+3. 測試過程中：
+   - TreeView 顯示當前執行的測試項目（高亮顯示）
+   - DataGridView 即時更新測試結果
+   - Log 區顯示詳細執行日誌
+4. 測試完成後，系統自動停止
+
+<img width="1920" height="1080" alt="Runmode on" src="https://github.com/user-attachments/assets/88cd14b4-fa5e-4f44-9662-629eef58199f" />
+
+**運行模式 2：重複測試模式**
+1. 確認所有 DUT 的 SN 已輸入
+2. 點擊 **▶ Start** 按鈕
+3. 系統開始執行測試流程
+4. 測試過程中：
+   - TreeView 顯示當前執行的測試項目（高亮顯示）
+   - DataGridView 即時更新測試結果
+   - Log 區顯示詳細執行日誌
+5. 單次測試完成後，重新開始測試
+
+**運行模式 3：圓盤模式 (Rotary Mode)**
+1. 點擊 **▶ Start** 按鈕啟動圓盤
+2. 圓盤開始旋轉，依序測試各工位的產品
+3. 測試過程中可點擊 **⏸ Stop** 按鈕暫停
+4. 暫停時可進行維護操作
+
+#### 步驟 10：查看結果 (View Results)
+
+<img width="1920" height="1080" alt="測試結果" src="https://github.com/user-attachments/assets/907d82a4-04f2-474d-b77b-fd56695f5b8d" />
+
+**即時查看**
+- TreeView 中，各測試項目以顏色標示結果：
+  - 🟢 綠色：通過 (PASS)
+  - 🔴 紅色：失敗 (FAIL)
+- DataGridView 顯示詳細的測試資料
+- Log 區顯示執行過程的所有訊息
+
+**備分資料快捷鍵**
+1. 點擊 **📊 Report** 按鈕
+2. 系統將開啟測試記錄資料夾
+3. 可查看：
+   - 測試日誌檔案 (.txt)
+   - 測試資料檔案 (.csv)
+   - 測試影像檔案 (.jpg, .png)
+
+#### 步驟 11：重複或結束 (Repeat or End)
+
+**繼續測試**
+- 重複步驟 5-7，測試下一個產品
+
+**結束測試**
+1. 確認所有測試已完成
+2. 點擊 **⏸ Stop** 按鈕（如果正在運行）
+3. 系統統計資料會儲存至配置檔
+4. 可安全關閉程式
+
+---
+
+## 主要功能說明 (Main Functions)
+
+### 1. 初始化與復歸 (Initialize & Home)
+
+**功能**：初始化所有測試設備並執行治具復歸流程
+
+**操作方式**：
+1. 點擊 **🏠 Home** 按鈕
+2. 等待初始化完成
+
+**執行內容**：
+- 卸載舊設備實例 (UnInit)
+- 載入並初始化新設備 (Init)
+- 執行治具初始化容器 (Container_JIG_INIT)
+- 建立 DUT 儀表板 UI
+
+**注意事項**：
+- 初始化前必須停止運行
+- 圓盤模式下，按停止後下次啟動需重新 Home
+- 初始化失敗時，檢查設備連線和配置檔
+
+### 2. 配方管理 (Recipe Management)
+
+**功能**：選擇和管理測試配方
+
+**操作方式**：
+1. 點擊 **⚙️ Configure** 按鈕
+2. 在配方管理視窗中選擇各項設定
+3. 確認後系統重新載入配方
+
+**可配置項目**：
+- **Project (專案)**：產品專案名稱
+- **Station (站別)**：測試站別（如：SMT、FT、Burn-in）
+- **Mode (模式)**：
+  - **PROD**：生產模式，正式生產使用
+  - **ENG**：工程模式，研發除錯使用
+  - **POINT_CHECK**：點檢模式，設備點檢使用
+- **Fixture (治具)**：治具編號
+- **Version (版本)**：配方版本
+
+**權限控制**：
+- UserLevel = 0 時無法開啟配方管理
+- 運行中無法更改配方
+
+
+#### 新增腳本流程（Add New Script Flow）
+
+**目的**：在不影響既有生產的前提下，將新腳本加入配方，並可控地發布到不同模式（ENG/POINT_CHECK/PROD）。
+
+---
+
+##### A. 前置條件
+- 環境變數。
+- 對應DUT設備 。
+- MainThread estProcess PostProcess HomeProcess
+---
+
+##### B. 命名與分類規則
+- 類別命名沿用既有架構：
+  - 例：`Script_Extra_XXXX`（通用功能）、`Script_DUT_XXXX`（DUT 相關）、`Script_IO_XXXX`（I/O 相關）…
+- `Description` 清楚描述用途；`ID` 需唯一（建議以數字區段或 GUID 產生）。
+- 屬性請完整填寫：`Spec`（規格/合格準則）、`ShowItem`（是否顯示於測試項）、`FailJump`（失敗時跳轉策略）。
+
+---
+
+##### C. 研發（ENG）驗證流程
+1. **建立腳本類別**  
+   在對應命名空間下新增功能。
+2. **實作參數與流程**  
+   
+3. **單步測試**
+
+4. **撰寫規格**（Spec）  
+   - 定義合格條件（Range/Equal/Regex…），加入到 `Spec` 屬性。
+
+---
+
+##### D. 配方（Recipe）變更步驟
+1. **在 Recipe 管理視窗**  
+   - 點擊 **⚙️ Configure** → 選擇 `Project/Station/Mode`。  
+   - 於流程樹（主容器）選擇插入位置（建議先在 `ENG`）。
+2. **新增測試項**  
+   - 新增 `Item` → 選擇你的腳本類別（系統會列出 `Script_*`）。  
+   - 設定屬性：`Description/ID/Spec/ShowItem/FailJump` 及腳本自訂參數。  
+3. **儲存並重新載入配方**  
+   - 按「確認」→ 系統重新載入配方。  
+   - 於 ENG 模式跑一次完整流程，確認通過率與例外處理。
+
+
+### 3. 啟動/停止測試 (Start/Stop Test)
+
+**功能**：控制測試流程的啟動與停止
+
+**啟動測試**：
+- 檢查初始化狀態 (`g_Initial` 和 `g_HomeProcessSuccess`)
+- 檢查運行模式與使用者權限
+- 根據 RunMode 執行對應的測試流程
+
+**停止測試**：
+- 設定 `g_shouldStop` 旗標
+- 等待所有測試執行緒結束
+- 重置系統狀態
+
+**安全機制**：
+- 生產模式禁止使用 rd 帳號
+- 工程/點檢模式會提示警告
+- 異常終止時顯示警報對話框
+
+### 4. 測試記錄查看 (View Test Reports)
+
+**功能**：開啟測試記錄資料夾，查看歷史測試資料
+
+**操作方式**：
+1. 點擊 **📊 Report** 按鈕
+2. 系統將開啟 `LOGFOLDER` 路徑
+3. 可查看各種測試記錄檔案
+
+**記錄內容**：
+- **測試日誌 (Log Files)**：詳細的測試過程記錄
+- **測試資料 (Test Data)**：測試結果的量測值
+- **測試影像 (Images)**：CCD 拍攝的影像
+- **統計報表 (Reports)**：測試統計資訊
+
+### 5. 維護功能 (Maintenance)
+
+**功能**：圓盤模式專用，顯示圓盤狀態和控制介面
+
+**操作方式**：
+1. 點擊 **🔧 Maintenance** 按鈕
+2. 開啟圓盤狀態視窗 (RotaryStatusForm)
+
+**可用功能**：
+- 查看圓盤各工位狀態
+- 手動控制圓盤旋轉
+- 查看維護記錄
+
+**注意事項**：
+- 僅圓盤模式下可用
+- 需要適當權限
+
+### 6. 使用者登入 (User Login)
+
+**功能**：使用者身份驗證與權限管理
+
+**登入方式**：
+- 本地登入 (Local Login)
+- Web 登入 (Web Login)
+
+**使用者等級**：
+| 使用者 | 等級 | 可用模式 | 說明 |
+|-------|------|---------|------|
+| **rd** | 2 | ENG | 研發人員，可進行工程除錯 |
+| **pe** | 1 | ENG, POINT_CHECK | 製程工程師，可進行點檢和維修 |
+| **op** | 0 | PROD | 操作員，僅可執行生產測試 |
+
+**權限限制**：
+- 生產模式不可使用 rd 帳號
+- 配方管理需 UserLevel > 0
+
+---
+
+## 操作模式 (Operation Modes)
+
+### RunMode 0：由輸入序號Textbox啟動測試模式
+
+**特點**：
+- Start 按鈕停用
+- 僅用Textbox執行測試流程
+
+**適用場景**：
+- 配方開發階段
+- 系統配置調整
+
+### RunMode 1：循環測試模式
+
+**說明**：同時測試多個 DUT，各 DUT 獨立運行且由流程中跳出序號輸入視窗
+
+**工作流程**：
+1. 為每個啟用的 DUT 建立獨立的測試執行緒
+2. 使用 `Task.WhenAll()` 並行執行所有 DUT 的測試
+3. 各 DUT 調用 `RunLoopAsync()` 方法進行測試循環
+4. 測試完成後統一結束
+
+**特點**：
+- 支援多 DUT 並行測試
+- 各 DUT 獨立顯示儀表板
+- 適合多工位同時測試
+
+**適用場景**：
+- SMT 測試
+- 功能測試 (FT)
+- 多工位並行測試
+
+### RunMode 2：圓盤測試模式 (Rotary Test Mode)
+
+**說明**：使用旋轉圓盤（Rotary Controller）依序測試各工位產品
+
+**工作流程**：
+1. 啟動圓盤控制器 (RotaryTestController)
+2. 圓盤旋轉到各工位
+3. 依序觸發各工位的測試
+4. 測試完成後旋轉到下一工位
+
+**特點**：
+- 自動化程度高
+- 適合大批量連續測試
+- 支援工位狀態監控
+- 異常時自動停止並警報
+
+**停止行為**：
+- 按停止後強制 `g_HomeProcessSuccess = false`
+- 下次啟動需重新執行 Home 流程
+- 異常停止時彈出警報對話框，確認後自動重啟
+
+**適用場景**：
+- 大批量生產測試
+- 自動化產線
+
+
+## 注意事項 (Precautions)
+
+### 操作注意事項 (Operation Precautions)
+
+1. **初始化相關**
+   - ⚠️ 初始化前必須停止所有運行中的測試
+   - ⚠️ 確保所有設備已正確連接並通電
+   - ⚠️ Home 流程必須完全成功才能開始測試
+   - ⚠️ 圓盤模式下，異常停止後需重新 Home
+
+2. **權限與模式**
+   - ⚠️ 生產模式嚴禁使用 rd 帳號
+   - ⚠️ 工程模式和點檢模式僅供研發和維護使用，不得用於正式生產
+   - ⚠️ 配方管理需要適當的使用者權限
+
+3. **測試操作**
+   - ⚠️ 確保 SN 輸入正確，避免資料混亂
+   - ⚠️ 測試過程中避免移動或震動設備
+   - ⚠️ 注意觀察測試日誌，及時發現異常
+
+4. **資料安全**
+   - ⚠️ 定期備份測試記錄資料夾
+   - ⚠️ 確保足夠的硬碟空間存放日誌
+   - ⚠️ 關閉程式前確認測試已完成，避免資料遺失
+
+5. **系統維護**
+   - ⚠️ 定期清理過期的測試記錄
+   - ⚠️ 定期檢查設備連線狀態
+   - ⚠️ 軟體更新前備份配方檔案
+
+### 安全注意事項 (Safety Precautions)
+
+1. **電氣安全**
+   - ⚡ 確保設備正確接地
+   - ⚡ 避免在潮濕環境中操作
+   - ⚡ 定期檢查電源線和連接器
+
+2. **機械安全**
+   - ⚙️ 圓盤模式運行時，注意旋轉部件
+   - ⚙️ 不要在運行時伸手進入治具區域
+   - ⚙️ 異常時立即按 Stop 停止
+
+3. **資料安全**
+   - 🔒 不要將測試資料傳送至未授權位置
+   - 🔒 妥善保管使用者帳號和密碼
+   - 🔒 配方檔案包含機密資訊，注意保護
+
+---
+
+## 故障排除 (Troubleshooting)
+
+### 常見問題與解決方案 (Common Issues and Solutions)
+
+#### 問題 1：無法啟動測試（Start 按鈕無效）
+
+**可能原因**：
+- 系統未初始化
+- Home 流程未成功
+- 運行模式設定為 0
+
+**解決方案**：
+1. 檢查系統資訊面板的模式設定
+2. 點擊 Home 按鈕重新初始化
+3. 確認 Home 流程執行成功（無錯誤訊息）
+4. 如問題持續，檢查配方設定的 RunMode
+
+#### 問題 2：設備初始化失敗
+
+**可能原因**：
+- 設備未連接
+- COM Port / IP 設定錯誤
+- 設備驅動程式問題
+- 設備配置檔案錯誤
+
+**解決方案**：
+1. 檢查設備實體連線（USB、網路線等）
+2. 開啟裝置管理員，確認 COM Port 狀態
+3. 檢查 DeviceList.json 中的設備設定
+4. 嘗試重新插拔設備或重啟電腦
+5. 查看日誌檔案中的詳細錯誤訊息
+
+#### 問題 3：測試過程中異常停止
+
+**可能原因**：
+- 設備通訊異常
+- 腳本執行錯誤
+- 超時設定不當
+- 硬體故障
+
+**解決方案**：
+1. 查看日誌區的錯誤訊息
+2. 檢查最後執行的測試項目
+3. 切換至工程模式，單步執行該測試項目
+4. 調整超時參數或重試次數
+5. 必要時更換故障設備
+
+#### 問題 4：測試結果不穩定
+
+**可能原因**：
+- 環境干擾（溫度、濕度、震動）
+- 設備精度問題
+- 腳本參數設定不當
+- 治具接觸不良
+
+**解決方案**：
+1. 檢查測試環境條件
+2. 使用已知良品進行重複測試
+3. 檢查並調整測試參數（如延遲時間、重試次數）
+4. 檢查治具接觸點，必要時清潔或更換
+5. 進行設備點檢，確認設備精度
+
+#### 問題 5：無法開啟配方管理
+
+**可能原因**：
+- 使用者權限不足 (UserLevel = 0)
+- 系統正在運行測試
+
+**解決方案**：
+1. 確認當前登入使用者
+2. 使用具有權限的帳號登入（rd 或 pe）
+3. 如正在運行測試，先停止測試
+4. 再次嘗試開啟配方管理
+
+#### 問題 6：SN 掃碼無反應
+
+**可能原因**：
+- 掃碼槍設定錯誤
+- 焦點未在正確的輸入框
+- BarcodeReaderMode 設定錯誤
+
+**解決方案**：
+1. 檢查配置檔中的 BarcodeReaderMode 設定
+2. 確認掃碼槍輸出格式（是否包含 Enter）
+3. 手動點擊 SN 輸入框，確保焦點正確
+4. 測試掃碼槍在記事本等程式中是否正常工作
+
+#### 問題 7：測試記錄資料夾無法開啟
+
+**可能原因**：
+- 路徑設定錯誤
+- 磁碟空間不足
+- 權限問題
+
+**解決方案**：
+1. 檢查配置檔中的 LOGFOLDER 路徑設定
+2. 確認磁碟機是否存在
+3. 檢查磁碟空間
+4. 確認使用者有該資料夾的讀寫權限
+5. 手動建立資料夾並設定權限
+
+#### 問題 8：圓盤模式異常警報頻繁彈出
+
+**可能原因**：
+- 感測器異常
+- 圓盤控制器通訊問題
+- 工位狀態異常
+
+**解決方案**：
+1. 點擊 Maintenance 查看圓盤狀態
+2. 檢查各感測器是否正常
+3. 檢查圓盤控制器連線
+4. 手動測試圓盤旋轉是否順暢
+5. 重新執行 Home 流程
+6. 必要時聯繫設備維護人員
+
+#### 問題 9：測試結果未儲存
+
+**可能原因**：
+- 程式異常關閉
+- 磁碟空間不足
+- 寫入權限問題
+
+**解決方案**：
+1. 確保程式正常關閉（使用關閉按鈕而非強制結束）
+2. 檢查磁碟空間
+3. 檢查日誌資料夾的寫入權限
+4. 查看主日誌檔案是否有錯誤訊息
+5. 必要時手動備份 INI 配置檔
+
+#### 問題 10：儀表板顯示異常
+
+**可能原因**：
+- UI 執行緒問題
+- 解析度設定不當
+- 記憶體不足
+
+**解決方案**：
+1. 重新啟動程式
+2. 調整視窗大小或最大化
+3. 檢查系統解析度設定
+4. 關閉其他佔用記憶體的程式
+5. 重新執行 Home 重建 UI
+
+---
+
+## 附錄 (Appendix)
+
+### A. 腳本系統說明 (Script System Description)
+
+MFGX 使用靈活的腳本系統來定義測試流程。測試腳本是 MFGX 系統的核心，負責執行各種測試項目和設備控制操作。
+
+#### 腳本系統架構 (Script System Architecture)
+
+測試腳本採用階層式架構，由容器 (Container) 和腳本 (Script) 組成：
+
+**容器類別 (Container Classes)**
+- **Container_MainThread**：主執行緒容器，作為測試流程的主要容器
+- **Container_Sequences**：序列容器，用於組織測試流程的序列
+- **Container_JIG_INIT**：治具初始化容器，用於治具的初始化流程（Home 流程）
+- **Container_Thread**：執行緒容器，用於非同步執行
+- **Container_RepeatUntil**：重複直到成功的容器
+
+**腳本基底類別 (Script Base Classes)**
+- **ScriptDUTBase**：DUT 腳本基底類別，用於與待測設備通訊
+- **ScriptIOBase**：IO 腳本基底類別，用於控制 IO 設備
+- **Script_Extra_Base**：額外功能腳本基底類別，用於通用功能
+- **Script_ControlDevice_Base**：控制設備腳本基底類別，用於控制外部設備
+- **Script_CCD_Base**：CCD 腳本基底類別，用於控制工業相機
+- **Script_1MotBase**：馬達腳本基底類別，用於控制運動設備
+
+#### 常用腳本類別 (Commonly Used Script Classes)
+
+以下是 MFGX 操作中常用的腳本類別：
+
+**DUT 相關腳本 (DUT Related Scripts)**
+- `Script_DUT_UART_Pro`：UART 串口通訊腳本
+- `Script_DUT_USB_ATCmd_Pro`：USB AT 命令腳本
+- `Script_DUT_CGI`：CGI 控制腳本
+
+**IO 相關腳本 (IO Related Scripts)**
+- `Script_IO_InstantAI_Pro`：即時類比輸入腳本
+- `Script_IO_Related_SetIO_Pro`：設定 IO 輸出腳本
+- `Script_IO_Related_GetIO_Pro`：讀取 IO 輸入腳本
+
+**控制設備腳本 (Control Device Scripts)**
+- `Script_ControlDevice_Arduino_Pro`：Arduino 控制腳本
+- `Script_MES`：MES 系統通訊腳本
+- `Script_HTTPMESCmd_Pro`：HTTP MES 命令腳本
+
+**Extra 功能腳本 (Extra Scripts)**
+- `Script_DelayTime_Pro`：延遲時間腳本
+- `Script_Extra_Jumper`：條件跳轉腳本
+- `Script_Extra_SetMoreProp`：設定額外屬性腳本
+- `Script_Extra_GetMoreProp`：讀取額外屬性腳本
+
+**CCD 相關腳本 (CCD Related Scripts)**
+- `Script_CCD_SetParam_Pro`：CCD 參數設定腳本
+- `Script_CCD_SaveImage_Pro`：儲存影像腳本
+- `Script_CCD_ResetExposureTime_Pro`：重設曝光時間腳本
+
+**Motion 相關腳本 (Motion Related Scripts)**
+- `Script_1Mot_AbsoluteMove_Pro`：絕對位置移動腳本
+- `Script_1Mot_CheckTCPAndRelease`：TCP 檢查與釋放腳本
+
+#### 腳本執行流程 (Script Execution Flow)
+
+測試腳本的執行遵循以下標準流程：
+
+1. **PreProcess（前處理）**：檢查參數、初始化資源
+2. **Process（處理）**：執行主要測試邏輯
+3. **PostProcess（後處理）**：檢查規格、清理資源
+
+#### 如何使用腳本系統 (How to Use Script System)
+
+在 MFGX 操作中，腳本的使用方式：
+
+1. **查看測試項目**：在儀表板的 TreeView 中查看測試流程結構
+2. **編輯測試腳本**：在工程模式下，可透過配方管理編輯測試腳本
+3. **調整腳本參數**：根據測試需求調整各腳本的參數設定
+4. **除錯測試流程**：使用單步執行功能除錯測試腳本
+
+### B. 配置檔案說明 (Configuration Files)
+
+系統使用以下配置檔案：
+
+- **Config.ini**：系統主配置檔
+- **DeviceList.json**：設備列表配置
+- **Recipe 資料夾**：測試配方檔案
+
+### C. 日誌檔案說明 (Log Files)
+
+日誌檔案位於 `LOGFOLDER` 路徑下：
+
+- **MainLog**：系統主日誌
+- **DUT Log**：各 DUT 的測試日誌
+- **Error Log**：錯誤日誌
+
+### D. 鍵盤快捷鍵 (Keyboard Shortcuts)
+
+- **Enter**：確認 SN 輸入 / 確認對話框
+- **Ctrl + C**：複製日誌內容（在日誌區）
+
+### E. 版本資訊 (Version Information)
+
+系統版本號顯示在視窗標題列，格式：`MFGX - Version X.X.X.X - [Recipe Name]`
+
+版本號由 .NET Assembly 版本決定。
+
+
+
+## 基底類別 (Base Classes)
+
+### ScriptDUTBase
+
+DUT（Device Under Test）腳本的基底類別，提供與待測設備通訊的基本功能框架。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `DeviceSel` | Common Parameters | 自訂顯示名稱 | 用於選擇要操作的 DUT 設備，透過下拉選單選取已註冊的 DUT 設備 |
+
+**類別說明：**
+- 繼承自 `ScriptBase` 並實作 `IDisposable` 介面
+- 提供 `PreProcess()`、`Process()`、`PostProcess()` 三階段處理流程
+- 支援新舊腳本格式
+- 內建 `DUT_DevList` TypeConverter 提供 DUT 設備下拉選單
+- 支援 MULTI_THREAD 模式進行多執行緒操作
+- 內建多種資料類型選單：`DataTypeList` (BIN/OCT/DEX/HEX)、`CRCTypeList`、`YES_NO_TypeList`
+
+---
+
+### ScriptIOBase
+
+IO（輸入/輸出）腳本的基底類別，用於控制 IO 設備的讀寫操作。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `DeviceSel` | Common Parameters | 自訂顯示名稱 | 用於選擇要操作的 IO 設備 |
+
+**類別說明：**
+- 繼承自 `ScriptBase` 並實作 `IDisposable` 介面
+- 支援 `IOBase` 設備的操作
+- 提供 `IO_Mode` 列舉：Set（設定）、Get（讀取）、SetGet（設定後讀取）、Multi（多重操作）
+- 內建 `IO_DevList` TypeConverter 提供 IO 設備下拉選單
+
+---
+
+### ScriptPCBase
+
+PC（個人電腦）腳本的基底類別，用於執行本機程式或命令。
+
+**類別說明：**
+- 繼承自 `ScriptBase` 並實作 `IDisposable` 介面
+- 用於控制 `DosBase` 設備執行命令列操作
+- 提供標準的三階段處理流程
+
+---
+
+### ScriptVisaBase
+
+VISA（Virtual Instrument Software Architecture）腳本的基底類別，用於控制儀器設備。
+
+**類別說明：**
+- 繼承自 `ScriptBase` 並實作 `IDisposable` 介面
+- 用於控制 `VisaBase` 設備
+- 提供標準的三階段處理流程
+
+---
+
+### Script_Extra_Base
+
+額外功能腳本的基底類別，用於不需要特定設備的通用功能。
+
+**類別說明：**
+- 繼承自 `ScriptBase` 並實作 `IDisposable` 介面
+- 提供 `Action()` 方法執行腳本邏輯
+- 支援例外處理（DumpException）進行流程跳轉
+- 內建多種 TypeConverter：
+  - `Extra_DevList`：通用設備選單
+  - `Extra_TeachList`：示教點位選單
+  - `RotaryControllerList`：旋轉控制器選單
+  - `IOTeachList`：IO 示教選單
+
+---
+
+### Script_ControlDevice_Base
+
+控制設備腳本的基底類別，用於控制各種外部控制設備。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `DeviceSel` | Common Parameters | 自訂顯示名稱 | 用於選擇要操作的控制設備 |
+
+**類別說明：**
+- 繼承自 `ScriptBase` 並實作 `IDisposable` 介面
+- 用於控制 `ControlDeviceBase` 設備
+- 內建 `CTRL_DevList` TypeConverter 提供控制設備下拉選單
+- 支援 MultiDevice 功能，可透過 `@SharedName@` 格式指定共用設備
+
+---
+
+### Script_CCD_Base
+
+CCD 相機腳本的基底類別，用於控制工業相機。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `DeviceSel` | Common Parameters | 自訂顯示名稱 | 用於選擇要操作的 CCD 相機設備 |
+
+**類別說明：**
+- 繼承自 `ScriptBase` 並實作 `IDisposable` 介面
+- 用於控制 `CCDBase` 設備
+- 內建 `CCD_DevList` TypeConverter 提供 CCD 設備下拉選單
+- 支援 MultiDevice 功能
+
+---
+
+### Script_1MotBase
+
+單軸馬達控制腳本的抽象基底類別。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `MotorDeviceSel` | Common Parameters | 自訂顯示名稱 | 用於選擇要操作的馬達設備 |
+
+**類別說明：**
+- 抽象類別，繼承自 `ScriptBase` 並實作 `IDisposable` 介面
+- 用於控制 `MotionBase` 馬達設備
+- 提供標準的三階段處理流程
+- 支援 MultiDevice 功能
+
+---
+
+### ScriptDUTMotionBase
+
+DUT 與 Motion 組合控制的抽象基底類別。
+
+**類別說明：**
+- 抽象類別，繼承自 `ScriptBase` 並實作 `IDisposable` 介面
+- 同時控制 `DUT_BASE` 和 `MotionBase` 設備
+- 適用於需要同步控制待測設備與馬達的場景
+
+---
+
+## 控制設備腳本 (Control Device Scripts)
+
+### Script_ControlDevice_Send
+
+發送命令至控制設備的腳本。
+
+**類別說明：**
+- 繼承自 `Script_ControlDevice_Base`
+- 用於向控制設備發送指令
+- 自動在指令後附加 `\r\n` 換行符
+
+---
+
+### Script_ControlDevice_Arduino_Pro
+
+Arduino 控制設備的進階腳本，支援多種操作模式。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `Mode` | Common Parameters | Arduino Mode | 操作模式選擇：Jig（治具）、Volt_Current（電壓電流）、RGBSensor（RGB感測器）、JsonCheck（JSON檢查） |
+| `Send_Command` | Command Set | Send Dut Command | 發送至 Arduino 的命令字串 |
+| `StrContentCheck` | Command Set | CheckContentStr(The Dut Arduino Control Content is return "Ready" in MTE) | 檢查內容字串，MTE 中 Arduino 控制內容回傳 "Ready" |
+| `Timeout` | Time Set | Timeout | 超時時間設定（毫秒） |
+| `DelayTime` | Time Set | DelayTime | 延遲時間設定（毫秒） |
+
+**類別說明：**
+- 繼承自 `Script_ControlDevice_Base`
+- 支援多種 Arduino 操作模式：
+  - **Jig**：治具控制模式，等待 Ack 回應後執行動作
+  - **Volt_Current**：電壓電流讀取模式
+  - **RGBSensor**：RGB 顏色感測器模式，計算 RGB 通道值與比例
+  - **JsonCheck**：JSON 格式回應檢查模式
+- 自動處理 COM Port 重連
+
+---
+
+## DUT 相關腳本 (DUT Related Scripts)
+
+### Script_DUT_Related
+
+DUT 設備操作的基礎腳本。
+
+**類別說明：**
+- 繼承自 `ScriptDUTBase`
+- 執行 DUT 設備的測試項目
+- 支援 JSON 格式的規格檢查
+- 內建 `SpecType` 列舉：Range（上下限範圍）、Equal（字串相等）
+
+---
+
+### Script_DUT_UART_Pro
+
+UART 串口通訊的進階腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `Send_Command` | Common Parameters | 支援用%%方式做變數值取代 | 發送的 UART 命令，支援 `%%變數名%%` 格式的變數替換 |
+| `ReadTimeOut` | Common Parameters | 自訂顯示名稱 | 單次讀取超時時間（毫秒），預設 3000 |
+| `TotalTimeOut` | Common Parameters | 自訂顯示名稱 | 總超時時間（毫秒），預設 3000 |
+| `CheckCmd` | Common Parameters | 自訂顯示名稱 | 檢查命令關鍵字 |
+| `ReadMode` | Common Parameters | 0 = default 1 = passive | 讀取模式：0 為預設模式（發送後讀取），1 為被動模式（只讀取） |
+| `TestKeyword` | Common Parameters | 自訂顯示名稱 | 測試關鍵字，預設為 "waitUARTCommand" |
+
+**類別說明：**
+- 繼承自 `ScriptDUTBase`
+- 支援多種測試模式：
+  - **waitUARTCommand**：發送命令並等待回應
+  - **WaitNormalRespond**：等待一般回應（不使用 JSON）
+  - **Reinit_COM**：重新初始化 COM Port
+- 內建特殊處理功能：TOF 校準資料處理、按鍵資料處理
+
+---
+
+### Script_DUT_UART_Raw_Pro
+
+UART 原始資料通訊的進階腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `Send_Data` | Common Parameters | 自訂顯示名稱 | 發送的原始資料 |
+| `ReadTimeOut` | Common Parameters | 自訂顯示名稱 | 單次讀取超時時間（毫秒），預設 3000 |
+| `TotalTimeOut` | Common Parameters | 自訂顯示名稱 | 總超時時間（毫秒），預設 3000 |
+| `Data_Type` | Common Parameters | 自訂顯示名稱 | 資料格式：BIN/OCT/DEX/HEX，預設 HEX |
+| `Data_Length` | Common Parameters | 自訂顯示名稱 | 讀取資料長度，預設 64 |
+| `Data_Header` | Common Parameters | 自訂顯示名稱 | 資料頭部偏移量，預設 0 |
+| `Data_Tail` | Common Parameters | 自訂顯示名稱 | 資料尾部位置，預設 0 |
+
+**類別說明：**
+- 繼承自 `ScriptDUTBase`
+- 支援原始位元組資料的發送與接收
+- 支援多種數字進位格式轉換
+
+---
+
+## IO 相關腳本 (IO Related Scripts)
+
+### Script_IO_Related
+
+IO 設備操作的基礎腳本。
+
+**類別說明：**
+- 繼承自 `ScriptIOBase`
+- 執行即時類比輸入（InstantAI）操作
+- 支援規格檢查
+
+---
+
+### Script_IO_InstantAI_Pro
+
+即時類比輸入的進階腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `Channel` | Common Parameters | 自訂顯示名稱 | 類比輸入通道編號 |
+
+**類別說明：**
+- 繼承自 `ScriptIOBase`
+- 執行指定通道的即時類比輸入讀取
+- 輸出 JSON 格式的讀取結果
+
+---
+
+### Script_IO_Related_SetIO_Pro
+
+設定 IO 輸出的進階腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `ON_OFF` | Common Parameters | 設定ONOFF | 設定輸出狀態：true 為 ON，false 為 OFF |
+| `SetBit` | Common Parameters | 自訂顯示名稱 | 設定的位元編號 |
+| `portNum` | Common Parameters | 自訂顯示名稱 | 連接埠編號，預設 0 |
+| `strportNum` | Support Replace Param(s) | 支援取代%%可輸入字串 | 支援變數替換的連接埠編號 |
+| `strSetBit` | Support Replace Param(s) | 支援取代%%可輸入字串 | 支援變數替換的位元編號 |
+
+**類別說明：**
+- 繼承自 `ScriptIOBase`
+- 設定數位輸出的狀態
+- 支援變數替換功能
+
+---
+
+### Script_IO_Related_GetIO_Pro
+
+讀取 IO 輸入的進階腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `GetBit` | Common Parameters | 自訂顯示名稱 | 讀取的位元編號，預設 0 |
+| `portNum` | GetIO Parameters | 自訂顯示名稱 | 連接埠編號，預設 0 |
+| `Check` | Common Parameters | 自訂顯示名稱 | 期望的輸入狀態，預設 true |
+| `Timeout` | Common Parameters | 自訂顯示名稱 | 等待超時時間（毫秒），預設 2000 |
+
+**類別說明：**
+- 繼承自 `ScriptIOBase`
+- 讀取數位輸入的狀態
+- 支援超時等待檢查指定狀態
+
+---
+
+## Extra 功能腳本 (Extra Scripts)
+
+### Script_DelayTime
+
+延遲時間腳本（舊版）。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `DelayTime` | Params | DelayTime | 延遲時間（毫秒） |
+
+**類別說明：**
+- 繼承自 `Script_Extra_Base`
+- 執行指定時間的延遲
+
+---
+
+### Script_DelayTime_Pro
+
+延遲時間的進階腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `DelayTime` | Params | DelayTime (e.g. 1000, 1s, 500ms) | 延遲時間，支援多種格式：純數字（毫秒）、帶 s 後綴（秒）、帶 ms 後綴（毫秒），預設 "500" |
+
+**類別說明：**
+- 繼承自 `Script_Extra_Base`
+- 支援靈活的時間格式輸入
+- 預設為隱藏測試項目（ShowItem = false）
+
+---
+
+### Script_MessageBox
+
+訊息對話框腳本。
+
+**類別說明：**
+- 繼承自 `Script_Extra_Base`
+- 顯示自訂訊息對話框
+- 等待使用者確認後繼續
+
+---
+
+### Script_MES
+
+MES（製造執行系統）通訊腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `MES_Command` | Common Parameters | Select Parse Case | MES 命令選擇：C001（員工編號檢查）、C002（序號流程檢查）、C003（測試結果記錄）、C004（檢驗結果記錄） |
+
+**類別說明：**
+- 繼承自 `Script_ControlDevice_Base`
+- 與 MES 系統進行通訊
+- 支援標準 MES 命令協定
+
+**MES 命令說明：**
+- **C001**：檢查員工編號是否正確，結果是 OK 表示檢查成功
+- **C002**：檢查序號以及檢驗流程，結果前兩碼是 OK 表示檢查成功
+- **C003**：用來記錄當站的測試結果，結果只能是 OK 或 NG，NG 需附帶不良代碼
+- **C004**：用來記錄非量測值但希望記錄各項的檢驗結果
+
+---
+
+### Script_Extra_SetMoreProp
+
+設定額外屬性的腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `Key` | Common Parameters | Key | 屬性鍵值名稱 |
+| `Value` | Common Parameters | Value | 屬性值，支援 `%%變數%%` 替換 |
+
+**類別說明：**
+- 繼承自 `Script_Extra_Base`
+- 設定可在流程中傳遞的自訂屬性
+- 輸出 JSON 格式的設定結果
+
+---
+
+### Script_Extra_GetMoreProp
+
+讀取額外屬性的腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `Key` | Common Parameters | Directly use Keyname, without adding %% | 直接使用鍵值名稱，不需加 %% 符號 |
+
+**類別說明：**
+- 繼承自 `Script_Extra_Base`
+- 讀取之前設定的自訂屬性
+- 輸出 JSON 格式的讀取結果
+
+---
+
+### Script_Extra_CheckFlagDone
+
+檢查標誌完成狀態的腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `Key` | Common Parameters | Key | 要檢查的標誌鍵值 |
+| `Value` | Common Parameters | Key | 期望的標誌值 |
+
+**類別說明：**
+- 繼承自 `Script_Extra_Base`
+- 用於多執行緒同步或流程控制
+- 檢查指定標誌是否達到期望值
+
+---
+
+### Script_Extra_Jumper
+
+條件跳轉的腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `Condition` | Condition | 自訂顯示名稱 | 條件表達式，透過編輯器設定 |
+| `JumpToID` | Data | 不設定時為Break模式 | 條件成立時跳轉的目標 ID，不設定則為 Break 模式 |
+
+**類別說明：**
+- 繼承自 `Script_Extra_Base`
+- 根據條件決定流程跳轉
+- 支援 Break 模式或跳轉至指定節點
+
+---
+
+### Script_Extra_SingleEntry
+
+單一進入點演算法腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `Width` | Image Params | SE PIN Content. | 影像寬度，預設 2592 |
+| `Height` | Image Params | SE PIN Content. | 影像高度，預設 1944 |
+| `Pixelformat` | Image Params | SE PIN Content. | 像素格式，預設 3（RGB） |
+| `PIN` | Params | SE PIN Content. | 演算法參數輸入，透過編輯器設定 |
+
+**類別說明：**
+- 繼承自 `Script_Extra_Base`
+- 呼叫外部 DLL 演算法進行影像處理
+- 支援 IVS 單一進入點演算法
+
+---
+
+### Script_Extra_CalculateDLL
+
+DLL 計算腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `DllFile` | PreProcess Parameters | DLL file | DLL 檔案路徑 |
+| `LoadContent` | PreProcess Parameters | load content | 載入內容設定 |
+| `Execute` | PreProcess Parameters | execute | 執行命令 |
+| `WaitTime` | PreProcess Parameters | wait time | 等待時間 |
+| `DataSourcePath` | Common Parameters | Data source Path | 資料來源路徑 |
+| `GetAllData` | Common Parameters | Get All Data of the Path | 是否取得路徑下所有資料 |
+| `DLLPath` | Common Parameters | DLL Path | DLL 路徑 |
+| `ProfileContent` | Common Parameters | Profile Content | 設定檔內容 |
+| `PassPosition` | Common Parameters | Pass Position Parameter Name | 傳遞位置參數名稱 |
+
+**類別說明：**
+- 繼承自 `Script_Extra_Base`
+- 載入並執行外部 DLL 進行計算
+- 支援動態載入與參數傳遞
+
+---
+
+## CCD 相關腳本 (CCD Related Scripts)
+
+### Script_CCD_SetParam_Pro
+
+CCD 相機參數設定腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `ExposureTime` | Common Parameters | 曝光時間設定 | 設定 CCD 相機的曝光時間（微秒） |
+
+**類別說明：**
+- 繼承自 `Script_CCD_Base`
+- 設定 CCD 相機的曝光時間
+- 輸出設定結果的 JSON 格式
+
+---
+
+### Script_CCD_Close
+
+CCD 相機關閉腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `DelayTime` | Common Parameters | DelayTime | 關閉後的延遲時間 |
+
+**類別說明：**
+- 繼承自 `Script_CCD_Base`
+- 關閉 CCD 相機連線
+- 可設定關閉後的延遲時間
+
+---
+
+## Motion 相關腳本 (Motion Related Scripts)
+
+### Script_1Mot_AbsoluteMove_Pro
+
+絕對位置移動腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `CheckMotionDone_String` | Move Status | 到位回傳值 | 馬達到位後的回傳字串 |
+| `PLC_command` | Move Position | PLC_Command | PLC 移動命令 |
+| `TimeOut` | Motion TimeOut | Motion TimeOut | 動作超時時間（毫秒），預設 10000 |
+
+**類別說明：**
+- 繼承自 `Script_1MotBase`
+- 執行馬達絕對位置移動
+- 等待並驗證到位回傳值
+
+---
+
+### Script_1Mot_CheckTCPAndRelease
+
+TCP 連線檢查與釋放腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `Command` | Command | CheckTCP確認PLC是否連線, Release斷開TCP連線 | 命令類型：CheckTCP（檢查連線）或 Release（釋放連線） |
+| `TimeOut` | Motion TimeOut | Motion TimeOut | 動作超時時間 |
+
+**類別說明：**
+- 繼承自 `Script_1MotBase`
+- 檢查 PLC TCP 連線狀態或釋放連線
+
+---
+
+## Container 容器腳本 (Container Scripts)
+
+### Script_Container_Base
+
+Container 腳本的基底類別。
+
+**類別說明：**
+- 繼承自 `ScriptContainer` 並實作 `IDisposable` 介面
+- 提供容器類型腳本的基本架構
+- 支援標準的三階段處理流程
+
+---
+
+### Container_MainThread
+
+主執行緒容器。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `RetryTimes` | Params | RetryTimes | 重試次數（隱藏屬性） |
+| `Cycles` | Params | Cycles | 執行循環次數 |
+| `FailContinue` | Params | Cycles | 失敗時是否繼續執行 |
+| `iTestStatus` | Params | Status | 測試狀態（私有屬性） |
+
+**類別說明：**
+- 繼承自 `ScriptContainer`
+- 作為測試流程的主要容器
+- 支援暫停/繼續功能（T_Pause、T_Continue）
+- 支援多種執行模式：Act、ActPro、ActRotate
+
+---
+
+### Container_Sequences
+
+序列容器。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `RetryTimes` | Params | RetryTimes | 重試次數 |
+| `Cycles` | Params | Cycles | 執行循環次數 |
+| `Lock_Key` | MultiTest | Multi thread lock use. Empty if not used | 多執行緒鎖定鍵值，空白表示不使用 |
+| `OnlyAction` | MultiTest | Multi thread lock use. Empty if not used | 是否只執行一次動作（多執行緒同步用） |
+| `isTestItem` | Base | Item Display | 是否為測試項目 |
+
+**類別說明：**
+- 繼承自 `Script_Container_Base` 並實作 `IDisposable` 介面
+- 用於組織測試流程的序列
+- 支援多執行緒同步控制
+- 預設 FailJump 為 "Break"
+
+---
+
+### Container_JIG_INIT
+
+治具初始化容器。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `RetryTimes` | Params | RetryTimes | 重試次數 |
+| `Cycles` | Params | Cycles | 執行循環次數 |
+
+**類別說明：**
+- 繼承自 `Script_Container_Base`
+- 用於治具的初始化流程
+- 可包含治具復歸動作
+
+---
+
+### Container_Thread
+
+執行緒容器。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `RetryTimes` | Params | RetryTimes | 重試次數 |
+| `Cycles` | Params | Cycles | 執行循環次數 |
+| `FailContinue` | Params | Cycles | 失敗時是否繼續執行 |
+| `DoneFlag` | Params | Doneflag | 完成標誌 |
+
+**類別說明：**
+- 繼承自 `ScriptContainer`
+- 用於非同步執行的容器
+- 支援完成狀態檢查
+
+---
+
+### Container_RepeatUntil
+
+重複直到成功的容器。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `Timeout` | Common Parameters | Timeout | 超時時間（毫秒），預設 10000 |
+
+**類別說明：**
+- 繼承自 `Script_Container_Base` 並實作 `IDisposable` 介面
+- 重複執行子節點直到成功或超時
+- 適用於需要重試的測試項目
+
+---
+
+### Container_ExceptionHandling
+
+例外處理容器。
+
+**類別說明：**
+- 繼承自 `ScriptContainer`
+- 處理執行過程中的例外狀況
+- 可包含例外處理流程
+
+---
+
+### Container_Condition_Jumper
+
+條件跳轉容器。
+
+**類別說明：**
+- 繼承自 `ScriptContainer`
+- 根據條件執行流程跳轉
+- 支援 if-else 邏輯
+
+---
+
+### Container_Post_Process
+
+後處理容器。
+
+**類別說明：**
+- 繼承自 `ScriptContainer`
+- 用於測試完成後的後處理流程
+- 可包含清理或統計動作
+
+---
+
+## Pro 進階腳本 (Pro Scripts)
+
+### Script_Extra_Generic_Command
+
+此類別為 AutoTestSystem 的通用指令腳本模組，支援多種設備與指令模式（如 SerialPort、檔案、外部執行檔等）。
+
+**主要功能：**
+- 根據不同設備型態，發送/接收指令並解析回應
+- 支援指令格式自訂、變數取代、正則檢查、超時控制等
+- 可用於自動化測試流程中，彈性擴充設備與指令型態
+
+**屬性說明：**
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `DeviceSel` | Common Parameters | 自訂顯示名稱 | 選擇要操作的設備名稱（如 SerialPort、Echo、OneTimeFile、OneTimeExe 等）。若為空字串則未選擇設備 |
+| `P0_Mode` | Command | READ支援SerialPort, READSEND支援SerialPort, SEND支援SerialPort、OneTimeExe, SENDREAD支援SerialPort、OneTimeFile、Echo、OneTimeExe | 指令執行模式：SEND（只發送指令）、READ（只讀取回應）、SENDREAD（先發送再讀取回應）、READSEND（先讀取再發送）、SEND_HEX（發送十六進位指令）、CLEAR（清除設備狀態） |
+| `P1_Send` | Command | 支援用%%方式做變數值取代 | 要發送的指令內容，支援 %% 變數取代。例如："AT+TEST%%VAR%%" |
+| `P2_ReadCheck` | Command | 自訂顯示名稱 | 回應檢查條件，可用正則表達式或 JSON 格式描述。例如："OK" 或 "[{\"Regex\":\"PASS\",\"Items\":[{\"Name\":\"Result\",\"MatchIndex\":0,\"GroupIndex\":1}]}]" |
+| `P3_TimeOut` | Command | 指令送出後多久沒得到回應控件將false | 指令執行的超時時間（毫秒），預設 10000 毫秒（10 秒） |
+| `P4_NewLine` | Command | 指令結尾換行符號 | 指令結尾換行符號，可選："CRLF"、"CR"、"LF"、""（空字串） |
+
+**主要方法：**
+| 方法名稱 | 說明 |
+|----------|------|
+| `PreProcess` | 執行前檢查設備與模式合法性 |
+| `Process` | 執行指令並解析回應 |
+| `PostProcess` | 根據 Spec 規則檢查結果 |
+| `SEND_COMMAND` | 發送指令（含換行符號） |
+| `SEND_HEX` | 發送十六進位指令 |
+| `READ_CHECK_PARSE` | 讀取並解析回應內容 |
+
+**適用場景：**
+- 測試設備通訊
+- 自動化指令流程
+- 彈性擴充多種設備型態
+
+**類別說明：**
+- 繼承自 `Script_Extra_Base`
+- 支援多種設備型態的通訊
+- 支援正則表達式匹配與 JSON 解析回應
+
+---
+
+### Script_HTTPMESCmd_Pro
+
+HTTP MES 命令的進階腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `MESCmd` | Common Parameters | 自訂顯示名稱 | MES 命令代碼 |
+| `Data` | Common Parameters | 支援用%%方式做變數值取代 | 命令資料，預設 "%WorkID%;%ProductSN%;" |
+| `CheckStr` | Common Parameters | 自訂顯示名稱 | 檢查回應字串，預設 "OK" |
+| `PrefixStr` | Common Parameters | 自訂顯示名稱 | 前綴字串 |
+
+**類別說明：**
+- 繼承自 `Script_ControlDevice_Base`
+- 透過 HTTP 與 MES 系統通訊
+- 支援多種 MES 命令與資料處理
+- 內建 C022、C038、C045、VN014、VN021、C029、VN020 等命令的特殊處理
+
+---
+
+### Script_Extra_IQTuning
+
+IQ 調校腳本，用於相機影像品質調校。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `ControlDeviceSel` | Devices | 自訂顯示名稱 | 控制設備選擇 |
+| `DUTDeviceSel` | Devices | 自訂顯示名稱 | DUT 設備選擇 |
+| `TeachDeviceSel` | Devices | 自訂顯示名稱 | 示教設備選擇 |
+| `TuningType` | TuningType | Camera Control Action Define | 調校類型定義 |
+| `X_Reverse` | Reverse | X reverse No = 0 Yes = 1 | X 軸反轉設定 |
+| `Y_Reverse` | Reverse | Y reverse No = 0 Yes = 1 | Y 軸反轉設定 |
+| `DLLPath` | IQ | ex:./IQ/SE_IVS.dll | DLL 路徑 |
+| `PIN` | IQ | SE PIN Content.Use %address% | 演算法參數輸入 |
+| `OC_X_Limit` | IQ_Limit | OC_X_Limit. | X 軸限制值 |
+| `OC_Y_Limit` | IQ_Limit | OC_Y_Limit. | Y 軸限制值 |
+
+**類別說明：**
+- 繼承自 `Script_Extra_Base`
+- 用於相機 OC（Optical Center）調校
+- 支援 X/Y 軸反轉設定
+- 整合外部 DLL 演算法
+
+---
+
+### Script_PassFail
+
+通過/失敗判定腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `PASSFAIL` | Params | PASSFAIL (legacy, fixed output if needed) | 通過/失敗設定（舊版相容） |
+| `PassRate` | Params | Pass rate percentage (0-100) | 通過率百分比（0-100） |
+
+**類別說明：**
+- 繼承自 `Script_Extra_Base`
+- 用於設定測試通過率
+- 支援固定輸出或百分比判定
+
+---
+
+### Script_Extra_MoveFile
+
+檔案移動腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `Command` | Command | 自訂顯示名稱 | 檔案操作命令 |
+| `SourcePath` | Command | 支援用%%方式做變數值取代 | 來源路徑 |
+| `DestPath` | Command | 支援用%%方式做變數值取代 | 目的路徑 |
+
+**類別說明：**
+- 繼承自 `Script_Extra_Base`
+- 用於移動或複製檔案
+- 支援變數替換
+
+---
+
+### Script_Extra_GetDataTableProp
+
+資料表屬性讀取腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `FirstRowData` | Common Params | Select First Row Data | 選取第一列資料 |
+| `SearchEqual` | LINQ Search | Ex:Project=="5005" | 相等條件搜尋 |
+| `SearchContain` | LINQ Search | Ex:ModelName Contain "256E" | 包含條件搜尋 |
+| `SearchContained` | LINQ Search | A is contained in B. Ex:ModelName Contained "256E,2323,2323,2323" | 被包含條件搜尋 |
+| `OrderBy` | LINQ Search | Ex1:ProductSN descending Ex2:ProductSN ascending | 排序條件 |
+
+**類別說明：**
+- 繼承自 `Script_Extra_Base`
+- 使用 LINQ 搜尋資料表
+- 支援多種搜尋條件與排序
+
+---
+
+### Script_Extra_UIControl_SetSnTextbox
+
+UI 控制項設定 SN 腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `SNType` | Params | DUT裝置中設置的SN列表 | SN 類型選擇 |
+| `SNValue1` | Params | 要設定到Textbox的SN值，支援%% | SN 值 1 |
+| `SNValue2` | Params | 要設定到Textbox的SN值，支援%% | SN 值 2 |
+| `SNValue3` | Params | 要設定到Textbox的SN值，支援%% | SN 值 3 |
+
+**類別說明：**
+- 繼承自 `Script_Extra_Base`
+- 設定 UI 文字方塊的 SN 值
+- 支援多個 SN 值設定
+
+---
+
+### Script_Extra_ControlUI
+
+UI 控制腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `Value1` ~ `Value9` | Common Parameters | Value | 各種 UI 控制值設定 |
+
+**類別說明：**
+- 繼承自 `Script_Extra_Base`
+- 用於控制 UI 元件
+- 支援多個值設定
+
+---
+
+### Script_IO_ControlTeach
+
+IO 控制示教腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `DeviceSel` | Common Parameters | 自訂顯示名稱 | 設備選擇 |
+| `GetIOPoint` | GetIO Parameters | 自訂顯示名稱 | 讀取 IO 點位 |
+| `Check` | GetIO Parameters | 自訂顯示名稱 | 檢查值 |
+| `Timeout` | GetIO Parameters | Timeout(ms) | 超時時間 |
+| `GetAIPoint` | GetAI Parameters | 量測點位 | 類比輸入點位 |
+
+**類別說明：**
+- 繼承自 `Script_Extra_Base`
+- 用於 IO 控制與示教
+- 支援數位 IO 與類比 AI 讀取
+
+---
+
+### Script_IO_InstantAI_Continueous
+
+連續類比輸入讀取腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `Command` | Command | 自訂顯示名稱 | 命令設定 |
+| `Channel` | Common Parameters | 自訂顯示名稱 | 通道編號 |
+| `LoopParams` | Continueous | Example->{"loopCount":"500","ch":"0","interval_ms":"10"} | 連續讀取參數（循環次數、通道、間隔） |
+
+**類別說明：**
+- 繼承自 `ScriptIOBase`
+- 連續讀取類比輸入
+- 支援 JSON 格式參數設定
+
+---
+
+### Script_IO_InstantAO_Pro
+
+即時類比輸出腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `Channel` | Common Parameters | 自訂顯示名稱 | 輸出通道編號 |
+| `Value` | Common Parameters | 自訂顯示名稱 | 輸出值 |
+
+**類別說明：**
+- 繼承自 `ScriptIOBase`
+- 設定類比輸出值
+- 支援指定通道輸出
+
+---
+
+### Script_DUT_USB_ATCmd_Pro
+
+USB AT 命令腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `Send_Command` | Common Parameters | 支援用%%方式做變數值取代 | 發送命令 |
+| `CheckCmd` | Common Parameters | 支援用%%方式做變數值取代 | 檢查命令 |
+| `ReadTimeOut` | Common Parameters | 自訂顯示名稱 | 讀取超時 |
+| `TotalTimeOut` | Common Parameters | 自訂顯示名稱 | 總超時 |
+| `Mode` | Common Parameters | 0 = Set ; 1 = Get ; 2 = Write | 操作模式 |
+
+**類別說明：**
+- 繼承自 `ScriptDUTBase`
+- 透過 USB 發送 AT 命令
+- 支援 Set/Get/Write 模式
+
+---
+
+### Script_DUT_UART_Open
+
+UART 開啟腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `PortName` | Comport | - | COM Port 名稱 |
+| `BaudRate` | Comport | - | 鮑率 |
+| `DataBits` | Comport | - | 資料位元 |
+| `Parity` | Comport | - | 同位檢查 |
+| `StopBits` | Comport | - | 停止位元 |
+
+**類別說明：**
+- 繼承自 `ScriptDUTBase`
+- 開啟 UART 連線
+- 設定串口參數
+
+---
+
+### Script_DUT_UBOOT_CHECK
+
+U-Boot 檢查腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `Send_Command` | Common Parameters | 支援用%%方式做變數值取代 | 發送命令 |
+| `CheckCmd` | Common Parameters | 自訂顯示名稱 | 檢查命令 |
+| `BOOT_ACTION` | BOOT_ACTION | 自訂顯示名稱 | 啟動動作 |
+
+**類別說明：**
+- 繼承自 `ScriptDUTBase`
+- 檢查 U-Boot 狀態
+- 支援啟動過程中的命令交互
+
+---
+
+### Script_CCD_ResetExposureTime_Pro
+
+CCD 曝光時間重設腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `Intensity` | Intensity | 影像亮度 支援%%變數 | 影像亮度值 |
+| `IntensityRange` | Intensity | 設定要改變曝光時間的影像亮度值範圍 | 亮度範圍 [Ymin;Ymax] |
+| `ExposureTime` | Exposure Time | SetExposureTime 支援%%變數 | 曝光時間 |
+| `DelayTime` | DelayTime | DelayTime after SetExposureTime | 設定後延遲時間 |
+| `CopyMethod` | FileCopyMethod | 資料複製的方式 | 複製方法 |
+| `ImageFormat` | FileSave | 存圖副檔名選擇 | 影像格式 |
+| `SaveFileName` | FileSave | 存圖檔案名稱(不需要填寫副檔名)支援用%%方式做變數值取代 | 儲存檔名 |
+| `SaveFolder` | FileSave | 選擇存取影像文件夾 | 儲存資料夾 |
+
+**類別說明：**
+- 繼承自 `Script_CCD_Base`
+- 根據影像亮度自動調整曝光時間
+- 支援影像儲存與備份
+
+---
+
+### Script_Image_Focus_Tune_SFR_Gaussian
+
+高斯 SFR 對焦調校腳本。
+
+| 屬性 | Category | Description | 說明 |
+|------|----------|-------------|------|
+| `MotionDeviceSel` | Device | 自訂顯示名稱 | 馬達設備選擇 |
+| `LoadContent` | SE Parameters | load content | 載入內容 |
+| `DLLPath` | SE Parameters | DLL Path | DLL 路徑 |
+| `CheckPath` | Check | DLL Path | 檢查路徑 |
+| `RoughTuneDeg` | Focus_Tune_Deg | Define Rough Tune Rotate Deg | 粗調旋轉角度 |
+| `FineTuneDeg` | Focus_Tune_Deg | Define Fine Tune Rotate Deg | 細調旋轉角度 |
+
+**類別說明：**
+- 繼承自 `Script_Image_Base`
+- 使用高斯演算法進行 SFR 對焦
+- 支援粗調與細調兩階段
+
+---
+
+### Script_ControlDevice_Close
+
+控制設備關閉腳本。
+
+**類別說明：**
+- 繼承自 `Script_ControlDevice_Base`
+- 關閉控制設備連線
+
+---
+
+### Script_IQxstream_EO5007
+
+IQxstream EO5007 測試腳本。
+
+**類別說明：**
+- 繼承自 `Script_Extra_Base`
+- 用於 IQxstream EO5007 設備測試
+
+---
+
+## 完整子類別清單
+
+### Script_Extra_Base 的子類別
+
+| 類別名稱 | 說明 |
+|----------|------|
+| `Script_DelayTime` | 延遲時間（舊版） |
+| `Script_DelayTime_Pro` | 延遲時間（進階版） |
+| `Script_MessageBox` | 訊息對話框 |
+| `Script_SimuTest` | 模擬測試 |
+| `Script_IQgig_Check` | IQgig 檢查 |
+| `Script_IQxel_Check` | IQxel 檢查 |
+| `Script_TOF_Check` | TOF 檢查 |
+| `Script_Extra_AudioRecord` | 音頻錄製 |
+| `Script_Extra_CheckMessageBox` | 檢查訊息對話框 |
+| `Script_Extra_PC_Win10` | PC Win10 控制 |
+| `Script_Extra_SetMoreProp` | 設定額外屬性 |
+| `Script_Extra_GetMoreProp` | 讀取額外屬性 |
+| `Script_Extra_CheckFlagDone` | 檢查標誌完成 |
+| `Script_Extra_Jumper` | 條件跳轉 |
+| `Script_Extra_SingleEntry` | 單一進入點演算法 |
+| `Script_Extra_CalculateDLL` | DLL 計算 |
+| `Script_Extra_Generic_Command` | 通用指令 |
+| `Script_Extra_IQTuning` | IQ 調校 |
+| `Script_PassFail` | 通過/失敗判定 |
+| `Script_Extra_MoveFile` | 檔案移動 |
+| `Script_Extra_GetDataTableProp` | 資料表屬性讀取 |
+| `Script_Extra_UIControl_SetSnTextbox` | UI SN 設定 |
+| `Script_Extra_ControlUI` | UI 控制 |
+| `Script_IO_ControlTeach` | IO 控制示教 |
+| `Script_IQxstream_EO5007` | IQxstream 測試 |
+| `Script_MesDataCheck` | MES 資料檢查 |
+| `Script_TOF_Pro` | TOF 進階 |
+| `Script_UsbDevice_Pro` | USB 設備 |
+| `Script_SetMoreProp_Pro` | 設定屬性進階 |
+| `Script_SingleEntry_Calculater` | 單一進入點計算 |
+| `Script_Extra_Algo_SingleEntry` | 演算法單一進入點 |
+| `Script_Extra_CalculateMoreProp` | 計算更多屬性 |
+| `Script_Extra_BackupQueue` | 備份佇列 |
+| `Script_Extra_2K_audio` | 2K 音頻 |
+| `Script_Extra_SyncClear` | 同步清除 |
+| `Script_Extra_CountDownEvent` | 倒數計時事件 |
+| `Script_Extra_CheckThreadResult` | 檢查執行緒結果 |
+| `Script_Extra_LtCommand` | LT 命令 |
+| `Script_Extra_Adb_ID` | ADB ID |
+| `Script_Extra_MetaPath_FileProcessing` | Meta 路徑檔案處理 |
+| `Script_Extra_HttpRequestHandler` | HTTP 請求處理 |
+| `Script_Extra_AmbaUSB_UIControl` | AmbaUSB UI 控制 |
+| `Script_Extra_UIControl_ShowImage` | UI 顯示影像 |
+| `Script_Extra_UIControl_ClearImage` | UI 清除影像 |
+| `Script_Extra_RotateManage` | 旋轉管理 |
+| `Script_Extra_ManageNotifyMessageBox` | 通知訊息管理 |
+| `Script_Extra_GlobalPropManager` | 全域屬性管理 |
+| `Script_Extra_MotionMovePath_Pro` | 馬達移動路徑 |
+| `Script_Extra_Test` | 測試 |
+
+---
+
+### Script_ControlDevice_Base 的子類別
+
+| 類別名稱 | 說明 |
+|----------|------|
+| `Script_ControlDevice_Send` | 發送命令 |
+| `Script_ControlDevice_Read` | 讀取回應 |
+| `Script_ControlDevice_Arduino` | Arduino 控制 |
+| `Script_ControlDevice_Arduino_Pro` | Arduino 進階 |
+| `Script_ControlDevice_Arduino_Evo` | Arduino 進化版 |
+| `Script_ControlDevice_ArduinoRecord` | Arduino 錄製 |
+| `Script_ControlDevice_AudioRecord` | 音頻錄製 |
+| `Script_ControlDevice_AudioRecord_Pro` | 音頻錄製進階 |
+| `Script_ControlDevice_Box` | Box 控制 |
+| `Script_ControlDevice_Box_Pro` | Box 進階 |
+| `Script_ControlDevice_MicroPhoneRecord` | 麥克風錄製 |
+| `Script_Control_ClientTCPMessage` | TCP 客戶端訊息 |
+| `Script_ControlDevice_Open` | 開啟設備 |
+| `Script_ControlDevice_Close` | 關閉設備 |
+| `Script_ControlDevice_OpenShort` | 開短測試 |
+| `Script_ControlDevice_ArduinoOpen` | Arduino 開啟 |
+| `Script_ControlDevice_ArduinoClose` | Arduino 關閉 |
+| `Script_MES` | MES 通訊 |
+| `Script_HTTPMESCmd_Related` | HTTP MES 相關 |
+| `Script_HTTPMESCmd_Pro` | HTTP MES 進階 |
+| `Script_PC_Win10_Related` | PC Win10 相關 |
+| `Script_PC_Win10_Pro` | PC Win10 進階 |
+| `Script_SSH_Command` | SSH 命令 |
+| `Script_SerialPortCMD_Pro` | SerialPort 命令 |
+| `Script_UseNModbus_Pro` | Modbus 進階 |
+| `Script_UseNModbusNew_Pro` | Modbus 新版進階 |
+| `Script_GPP_Series` | GPP 系列電源 |
+| `Script_PPX_Pro` | PPX 進階 |
+| `Script_JIGControl` | 治具控制 |
+| `Script_OpenClose_Controller` | 開關控制器 |
+| `Script_iperf_restart` | iperf 重啟 |
+
+---
+
+### ScriptDUTBase 的子類別
+
+| 類別名稱 | 說明 |
+|----------|------|
+| `Script_DUT_Related` | DUT 相關 |
+| `Script_DUT_ATCmd_Related` | AT 命令相關 |
+| `Script_DUT_UART_Related` | UART 相關 |
+| `Script_DUT_UART_Pro` | UART 進階 |
+| `Script_DUT_UART_Raw_Pro` | UART 原始資料 |
+| `Script_DUT_UART_Raw_Pro_2` | UART 原始資料 2 |
+| `Script_DUT_UART_NONJSON_Pro` | UART 非 JSON |
+| `Script_DUT_UART_DTM_Pro` | UART DTM |
+| `Script_DUT_UART_Half_Control` | UART 半控制 |
+| `Script_DUT_UART_Open` | UART 開啟 |
+| `Script_DUT_UART_Close` | UART 關閉 |
+| `Script_DUT_USB_ATCmd_Pro` | USB AT 命令 |
+| `Script_DUT_UBOOT_CHECK` | U-Boot 檢查 |
+| `Script_DUT_ReqRespCheck` | 請求回應檢查 |
+| `Script_DUT_Do_Action` | 執行動作 |
+| `Script_DUT_IQ_Process_Tuning` | IQ 調校處理 |
+| `Script_DUT_Camera_Control` | 相機控制 |
+| `Script_DUT_CGI` | CGI 控制 |
+| `Script_DUT_CommandCheck` | 命令檢查 |
+| `Script_DUT_COMControl_Pro` | COM 控制進階 |
+| `Script_Gsensor_Pro` | G-sensor 進階 |
+| `Script_I2CDriver_Pro` | I2C 驅動 |
+| `Script_FileProcessing_Pro` | 檔案處理 |
+
+---
+
+### ScriptIOBase 的子類別
+
+| 類別名稱 | 說明 |
+|----------|------|
+| `Script_IO_Related` | IO 相關 |
+| `Script_IO_InstantAI` | 即時類比輸入 |
+| `Script_IO_InstantAI_Pro` | 即時類比輸入進階 |
+| `Script_IO_InstantAI_Continueous` | 連續類比輸入 |
+| `Script_IO_InstantAIs` | 多通道類比輸入 |
+| `Script_IO_InstantAO_Pro` | 即時類比輸出 |
+| `Script_IO_Related_SetIO` | 設定 IO |
+| `Script_IO_Related_SetIO_Pro` | 設定 IO 進階 |
+| `Script_IO_Related_GetIO` | 讀取 IO |
+| `Script_IO_Related_GetIO_Pro` | 讀取 IO 進階 |
+| `Script_IO_SetGetIO_Pro` | 設定讀取 IO |
+| `Script_IO_ModBusSetGetIO_Pro` | ModBus IO |
+| `Script_IO_Common` | IO 通用 |
+| `Script_IO_GetWaveAI_Pro` | 波形類比輸入 |
+
+---
+
+### Script_CCD_Base 的子類別
+
+| 類別名稱 | 說明 |
+|----------|------|
+| `Script_CCD_SetParam` | 設定參數 |
+| `Script_CCD_SetParam_Pro` | 設定參數進階 |
+| `Script_CCD_SaveImage` | 儲存影像 |
+| `Script_CCD_SaveImage_Pro` | 儲存影像進階 |
+| `Script_CCD_Capture_Pro` | 擷取影像 |
+| `Script_CCD_Close` | 關閉 CCD |
+| `Script_CCD_Open` | 開啟 CCD |
+| `Script_CCD_ResetExposureTime_Pro` | 重設曝光時間 |
+| `Script_Priview_Test` | 預覽測試 |
+
+---
+
+### Script_1MotBase 的子類別
+
+| 類別名稱 | 說明 |
+|----------|------|
+| `Script_1Mot_AbsoluteMove_Pro` | 絕對位置移動 |
+| `Script_1Mot_RelativeMove_Pro` | 相對位置移動 |
+| `Script_1Mot_CheckMoveDone_Pro` | 檢查移動完成 |
+| `Script_1Mot_CheckTCPAndRelease` | TCP 檢查與釋放 |
+| `Script_TCP_Communication` | TCP 通訊 |
+
+---
+
+### Script_1Mot1ComBase 的子類別
+
+| 類別名稱 | 說明 |
+|----------|------|
+| `Script_1Mot1Com_TorqueJig` | 扭力治具 |
+| `Script_1Mot1Com_TorqueJig_Pro` | 扭力治具進階 |
+| `Script_1Mot1Com_TorqueJigHome_Pro` | 扭力治具歸位 |
+| `Script_1Mot1Com_MotionDIO_Pro` | 馬達 DIO |
+| `Script_1Mot1Com_MotionDIOSetGet_Pro` | 馬達 DIO 設定讀取 |
+| `Script_1Mot1Com_MotionHome_Pro` | 馬達歸位 |
+| `Script_1Mot1Com_MotionMove_Pro` | 馬達移動 |
+
+---
+
+### Script_Image_Base 的子類別
+
+| 類別名稱 | 說明 |
+|----------|------|
+| `Script_Image_Init` | 影像初始化 |
+| `Script_Image_UnInit` | 影像反初始化 |
+| `Script_Image_SetParam` | 影像參數設定 |
+| `Script_Image_Capture` | 影像擷取 |
+| `Script_Image_Capture_SFR_Cal` | SFR 校正擷取 |
+| `Script_Image_Focus_Tune_SFR` | SFR 對焦調校 |
+| `Script_Image_Focus_Tune_SFR_Gaussian` | 高斯 SFR 對焦 |
+| `Script_Image_PowerWrite` | 電源寫入 |
+| `Script_ImageShow` | 影像顯示 |
+
+---
+
+### Container 容器子類別
+
+| 類別名稱 | 說明 |
+|----------|------|
+| `Container_MainThread` | 主執行緒 |
+| `Container_Sequences` | 序列 |
+| `Container_Thread` | 執行緒 |
+| `Container_JIG_INIT` | 治具初始化 |
+| `Container_ExceptionHandling` | 例外處理 |
+| `Container_Condition_Jumper` | 條件跳轉 |
+| `Container_Post_Process` | 後處理 |
+| `Container_RepeatUntil` | 重複直到 |
+
+---
+
+### 其他腳本類別
+
+| 類別名稱 | 父類別 | 說明 |
+|----------|--------|------|
+| `Script_DUT_Motion_Related` | ScriptDUTMotionBase | DUT 與馬達組合控制 |
+| `Script_SetMoreProp` | Script_Tool_Base | 設定更多屬性 |
+| `Script_ATSuite_Pro` | - | 自動化測試套件 |
+| `Script_ATSuite_Setting` | - | 測試套件設定 |
+| `Script_Button_Pro` | - | 按鈕控制 |
+| `Script_Condition_Execute` | - | 條件執行 |
+| `Script_IQxel_EO5002` | - | IQxel EO5002 |
+
+---
+
+## 附錄：共用屬性說明
+
+### 所有 ScriptBase 繼承類別共用的屬性
+
+| 屬性 | 說明 |
+|------|------|
+| `Description` | 腳本說明/顯示名稱 |
+| `ID` | 腳本唯一識別碼 |
+| `Spec` | 規格檢查設定 |
+| `FailJump` | 失敗時跳轉設定 |
+| `ShowItem` | 是否顯示於測試項目 |
+| `RowDataItem` | 資料列項目（測試結果、輸出資料） |
+
+### 變數替換語法
+
+許多屬性支援變數替換功能：
+- `%%變數名稱%%`：替換為對應的變數值
+- 透過 `ReplaceProp()` 方法處理替換
+
+---
+
+## 相關文件 (Related Documentation)
+
+- **[MFGX 系統操作說明](#mfgx-manual)**：完整的 MFGX 系統操作手冊
+  - 基本操作流程
+  - 測試腳本編輯與調整工作流程
+  - 系統架構與腳本系統整合說明
+  - 故障排除指南
+
+---
+
+
+---
+
+## 修訂歷史 (Revision History)
+
+| 版本 | 日期 | 修訂內容 | 作者 |
+|-----|------|---------|------|
+| 1.0 | 2025-12-09 | 初版發行，包含基本操作說明與框架項目 | System |
+
+---
+
+**文件結束 (End of Document)**
+
+

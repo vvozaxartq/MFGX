@@ -1,0 +1,1810 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>MFGX Viewer 0.2</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { --bg:#f6f7fb; --card:#fff; --text:#111; --muted:#667085; --border:#e5e7eb; --primary:#111; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Arial; background: linear-gradient(#fff, var(--bg)); color:var(--text); }
+  .container { max-width: 1200px; margin: 24px auto; padding: 0 16px; }
+  .row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .title { display:flex; align-items:center; gap:10px; font-weight:800; font-size:22px; }
+  .btn { display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:14px; background:var(--primary); color:#fff; border:none; cursor:pointer; }
+  .btn:active { transform: translateY(1px); }
+  .tabs { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+  .tab { padding:8px 12px; border-radius:999px; background:#e5e7eb; border:none; cursor:pointer; }
+  .tab.active { background:#111; color:#fff; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:18px; box-shadow:0 4px 16px rgba(0,0,0,.04); padding:16px; }
+  .muted { color: var(--muted); }
+
+  .grid2 { display:table; border-collapse:collapse; width:100%; }
+  .kv { display:table-row; font-size:14px; border-bottom:1px solid var(--border); }
+  .kv .k { display:table-cell; padding:4px 8px; color: var(--muted); white-space:nowrap; vertical-align:top; }
+  .kv > div:last-child { display:table-cell; padding:4px 8px; }
+
+  pre { background:#fafafa; border:1px solid var(--border); border-radius:10px; padding:8px; max-height:220px; overflow:auto; }
+  
+  .error-code { font-weight:700; color:#b91c1c; }
+  
+  
+  .dev-name-cell {
+    background: linear-gradient(90deg, #e0f2fe 0%, #bae6fd 100%);
+    font-weight: 700;
+    color: #0c4a6e;
+    border-radius: 8px;
+    padding: 4px 8px;
+    text-align: left;
+    box-shadow: inset 0 0 2px rgba(0,0,0,0.05);
+  }
+  .dev-name-cell:hover {
+    background: linear-gradient(90deg, #bae6fd 0%, #7dd3fc 100%);
+    transition: all .2s ease-out;
+  }
+.dev-name-cell strong {
+    background:#e0f2fe;
+    padding:2px 6px;
+    border-radius:6px;
+  }
+
+  .dev-row{
+    cursor:pointer;
+  }
+  .dev-row:hover td{
+    background-color:#f1f5f9;
+  }
+
+.error-chip {
+    display:inline-block;
+    padding:2px 10px;
+    border-radius:999px;
+    background:linear-gradient(90deg,#fee2e2,#fecaca);
+    color:#7f1d1d;
+    font-weight:500;
+    font-variant-numeric:tabular-nums;
+    box-shadow:0 1px 3px rgba(0,0,0,0.1);
+  }
+  .error-name { font-weight:600; }
+  .error-row { background:#FEF2F2; }  /* 淡紅底 */
+  .error-row:hover { background:#fff5f5; transform:scale(1.01); transition:all .15s ease-out; }
+  .error-table thead th { background:#B91C1C; color:#fff; }
+  .error-table tbody td, .error-table tbody th { border-top:1px solid #FCA5A5; }
+.badge { display:inline-flex; align-items:center; gap:6px; background:#f3f4f6; padding:3px 8px; border-radius:999px; font-size:12px; }
+  .list { display:flex; flex-direction:column; gap:8px; }
+  .fileHead { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
+  .remove { border:none; background:transparent; color:#ef4444; cursor:pointer; }
+
+  .tree { 
+    border:1px solid var(--border); 
+    border-radius:16px; 
+    background:linear-gradient(180deg,#f9fafb,#eff6ff); 
+    padding:10px 12px; 
+  }
+  .node { margin: 3px 0; }
+
+  .nodeHead { 
+    display:flex; 
+    align-items:flex-start; 
+    gap:8px; 
+    padding:3px 6px; 
+    border-radius:8px; 
+    cursor:pointer; 
+    font-size:16px;
+    font-weight:500;           /* 一般節點字體加粗一點 */
+    background:#f9fafb;        /* 所有節點都有淡底色 */
+  }
+  .nodeHead:hover { background:rgba(59,130,246,0.08); }
+
+  /* Flow 列表：描述 / 指令 / 啟用 三欄齊排 */
+  .node-title{
+    flex:0 0 160px;
+    min-width:160px;
+    /* 避免描述太長蓋到後面指令：超出就省略顯示 */
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .node-p1send{
+    flex:1 1 auto;
+    margin-left:0;
+    font-size:11px;
+    color:#4b5563;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+.nodeBody { margin-left:18px; border-left:1px dashed #cbd5f5; padding-left:10px; }
+  .hidden { display:none; }
+
+  .searchInput { width:100%; padding:8px 10px; border-radius:10px; border:1px solid var(--border); background:#f8fafc; }
+  .table { width:100%; border-collapse: collapse; font-size:14px; }
+  .table th, .table td { text-align:left; padding:10px; border-bottom:1px solid var(--border); vertical-align:top; }
+  .table th { background:#f3f4f6; position: sticky; top: 0; }
+  .mono { font-family: ui-monospace, Menlo, Consolas, monospace; font-size:12px; word-break:break-all; white-space:pre-wrap; }
+  .flexcol { display:flex; gap:14px; flex-wrap:wrap; }
+  .half { flex:1 1 420px; }
+  .toolbar { display:flex; gap:8px; align-items:center; margin:8px 0 12px; }
+  .chip { 
+    font-size:12px; 
+    padding:4px 10px; 
+    border-radius:999px; 
+    background:#eef2ff; 
+  }
+
+  .chip-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    align-items:center;
+  }
+
+  /* 一般工具列的小膠囊 */
+  .pill { 
+    padding:4px 10px; 
+    border:1px solid var(--border); 
+    border-radius:999px; 
+    background:#f8fafc; 
+    font-size:11px; 
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+
+  /* Flow 上方「Node types」的小標籤，做成比較有質感的動態磚 */
+  .flow-type-pill{
+    border-color:#e5e7eb;
+    background:#f9fafb;
+    box-shadow:0 1px 2px rgba(15,23,42,0.06);
+    cursor:pointer;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease,
+      box-shadow 0.15s ease,
+      transform 0.05s ease;
+  }
+  .flow-type-pill:hover{
+    background:#eff6ff;
+    border-color:#bfdbfe;
+    box-shadow:0 2px 4px rgba(148,163,184,0.18);
+    transform:translateY(-1px);
+  }
+  .flow-type-pill input{
+    margin-right:4px;
+  }
+  .flow-type-pill span{
+    white-space:nowrap;
+  }
+  .flow-type-pill.flow-type-pill--active{
+    background:#2563eb;
+    border-color:#2563eb;
+    color:#fff;
+    box-shadow:0 3px 6px rgba(37,99,235,0.35);
+  }
+
+  @media (max-width: 720px) { .grid2 { display:table; } }
+
+  .app-title-main{
+    font-weight:600;
+  }
+  .file-summary{
+    margin-left:12px;
+    font-size:12px;
+    color:#4b5563;
+    font-weight:400;
+    max-width:40vw;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+.btn-more { padding:6px 10px; border-radius:8px; border:1px solid var(--border); background:#f8fafc; cursor:pointer }
+  .seg-box { border:1px dashed var(--border); border-radius:12px; padding:10px; margin-top:8px; background:#fbfdff; }
+  .seg-title { font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+  .motion-box { border:1px solid var(--border); border-radius:10px; padding:8px; margin:6px 0; background:#fff; }
+  .motion-title { font-weight:600; margin-bottom:4px; }
+  .spec-mini { margin-top:8px; }
+  .spec-mini h4 { margin:6px 0; font-size:14px; }
+
+  .journal-list { display:flex; flex-direction:column; gap:6px; font-size:13px; }
+  .journal-item { padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:#fafafa; }
+  .journal-header { display:flex; justify-content:space-between; margin-bottom:2px; font-size:12px; color:var(--muted); }
+  .journal-date { font-weight:500; }
+  .journal-user { margin-left:8px; }
+  .journal-log { white-space:pre-wrap; word-break:break-word; }
+
+  .node-ioctl{
+    border-left:4px solid #f97316;
+  }
+  .node-ccd{
+    border-left:4px solid #0ea5e9;
+  }
+
+  .tree .node.selected > .nodeHead{
+    background:rgba(59,130,246,0.14);
+    color:#111827;
+  }
+  .tree .node.selected > .nodeHead .badge{
+    background:#e0ebff;
+  }
+
+  /* 父節點字體再加粗，並依階層底色區分 */
+  .nodeHead.parent{
+    font-weight:700;     /* 父節點字體更粗 */
+  }
+  .nodeHead.parent.level-0{
+    background:#e0f2fe;     /* 淺藍 */
+  }
+  .nodeHead.parent.level-1{
+    background:#fef3c7;     /* 淺黃 */
+  }
+  .nodeHead.parent.level-2{
+    background:#fce7f3;     /* 淺粉 */
+  }
+  .nodeHead.parent.level-3{
+    background:#e5e7eb;     /* 灰色 */
+  }
+
+  .nodeBody.level-0{ border-left-color:#bfdbfe; }
+  .nodeBody.level-1{ border-left-color:#fbbf24; }
+  .nodeBody.level-2{ border-left-color:#f9a8d4; }
+  .nodeBody.level-3{ border-left-color:#9ca3af; }
+
+  /* === Spec table color hierarchy (no side stripe, no legend) === */
+  /* === Spec table color hierarchy (colorblind-friendly) === */
+  .table.spec-table tbody tr:nth-child(even){ background:#fafafa; }
+  .table.spec-table tbody tr:hover{ background:#e8f0fe; } /* universal hover */
+  .spec-row{ transition:background .15s ease; }
+  /* Row backgrounds: very light tints */
+  .spec-row.range{  background:#E7F0FA; }  /* blue tint */
+  .spec-row.number{ background:#FFF4E0; }  /* orange tint */
+  .spec-row.bool{   background:#E7F5F0; }  /* green tint */
+  .spec-row.text{   background:#F8ECF5; }  /* purple/pink tint */
+  .spec-row.equal{  background:#FFFDE7; }  /* yellow tint */
+
+  /* Badges: strong, colorblind‑safe hues */
+  .spec-type-badge{ display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; font-weight:600; }
+  .spec-type-badge.range{  background:#0072B2; color:#fff; }
+  .spec-type-badge.number{ background:#E69F00; color:#000; } /* orange on light text for readability */
+  .spec-type-badge.bool{   background:#009E73; color:#fff; }
+  .spec-type-badge.text{   background:#CC79A7; color:#fff; }
+  .spec-type-badge.equal{  background:#F0E442; color:#111; } /* yellow needs dark text */  /* rose 200 */
+
+
+  .bool-dot{
+    display:inline-block;
+    min-width:18px;
+    text-align:center;
+    font-size:11px;
+    font-weight:600;
+    color:#16a34a;
+  }
+  .bool-dot.on::before{
+    content:'ON';
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="title">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="3.5" width="16" height="7" rx="1.5" stroke-width="2"></rect><rect x="4" y="13.5" width="16" height="7" rx="1.5" stroke-width="2"></rect><path d="M12 10.5v3" stroke-width="2"></path></svg>
+        <span class="app-title-main">MFGX Viewer 0.2</span><span id="fileSummary" class="file-summary"></span>
+      </div>
+      <label class="btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16"></path></svg>
+        Import JSON
+        <input id="fileInput" type="file" accept=".json,.txt" class="hidden">
+      </label>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="flow">Process</button>
+      <button class="tab" data-tab="spec">Spec</button>
+      <button class="tab" data-tab="error">ErrorCode</button>
+      <button class="tab" data-tab="devices">Devices</button>
+    </div>
+
+    <div id="panel-flow" class="panel">
+      <div id="flowEmpty" class="card muted" style="text-align:center;">Import a JSON configuration file to expand the flow tree</div>
+      <div class="toolbar">
+        <label class="pill"><input id="chkFlowAllProps" type="checkbox"> Show all properties</label>
+        <span style="flex:1;"></span>
+        <input id="txtFlowSearch" type="text" placeholder="Search by Description / ID / ErrorCode / ClassName" style="min-width:220px;">
+      </div>
+      <div class="toolbar" id="flowTypeBar">
+        <span class="muted" style="font-size:11px;margin-right:6px;">Node types:</span>
+        <div id="flowTypeChips" class="chip-row"></div>
+      </div>
+      <div id="flowList" class="list"></div>
+    </div>
+
+    <div id="panel-spec" class="panel hidden">
+      <div class="toolbar">
+        <span class="chip" id="specCount">0 項</span>
+        <label class="pill" style="display:none;"><input id="chkUnique" type="checkbox"> Show only one record per unique Name.</label>
+        <label class="pill"><input id="chkSpecHideBypass" type="checkbox"> Hide Type = Bypass</label>
+        <label class="pill"><input id="chkSpecHideErrUndef" type="checkbox" checked> Hide ErrorCode = Undefined</label>
+        <label class="pill"><input id="chkSpecHideEmptySpec" type="checkbox" checked> Hide empty Spec</label>
+      </div>
+      <div id="specEmpty" class="card muted" style="text-align:center;">尚未載入檔案</div>
+      <div id="specTableWrap"></div>
+    </div>
+
+    <div id="panel-error" class="panel hidden">
+      <div id="errEmpty" class="card muted" style="text-align:center;">尚未載入檔案</div>
+      <div id="errWrap"></div>
+    </div>
+
+    <div id="panel-devices" class="panel hidden">
+      <div id="devEmpty" class="card muted" style="text-align:center;">尚未載入檔案</div>
+      <div id="devWrap"></div>
+    </div>
+
+    
+
+<script>
+(function(){
+  const fileInput = document.getElementById('fileInput');
+  const panels = {
+    flow: document.getElementById('panel-flow'),
+    spec: document.getElementById('panel-spec'),
+    error: document.getElementById('panel-error'),
+    devices: document.getElementById('panel-devices')
+  };
+  const tabs = document.querySelectorAll('.tab');
+  const flowList = document.getElementById('flowList');
+  const flowEmpty = document.getElementById('flowEmpty');
+  const specEmpty = document.getElementById('specEmpty');
+  const specTableWrap = document.getElementById('specTableWrap');
+  const specCount = document.getElementById('specCount');
+  const chkUnique = document.getElementById('chkUnique');
+  const chkSpecHideBypass = document.getElementById('chkSpecHideBypass');
+  const chkSpecHideErrUndef = document.getElementById('chkSpecHideErrUndef');
+  const chkSpecHideEmptySpec = document.getElementById('chkSpecHideEmptySpec');
+  const errEmpty = document.getElementById('errEmpty');
+  const errWrap = document.getElementById('errWrap');
+  const devEmpty = document.getElementById('devEmpty');
+  const devWrap = document.getElementById('devWrap');
+  const chkFlowAllProps = document.getElementById('chkFlowAllProps');
+  const txtFlowSearch = document.getElementById('txtFlowSearch');
+  const flowTypeChips = document.getElementById('flowTypeChips');
+  const fileSummary = document.getElementById('fileSummary');
+
+  let files = []; // { name, data }
+  let flowShowAllProps = false;
+  let flowSearchText = '';
+  let flowSelectedTypes = new Set();
+
+  if (chkFlowAllProps){
+    chkFlowAllProps.addEventListener('change', function(){
+      flowShowAllProps = !!chkFlowAllProps.checked;
+      render();
+    });
+  }
+  if (txtFlowSearch){
+    txtFlowSearch.addEventListener('input', function(){
+      flowSearchText = txtFlowSearch.value || '';
+      render();
+    });
+  }
+
+
+  tabs.forEach(btn => btn.addEventListener('click', () => {
+    tabs.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.getAttribute('data-tab');
+    Object.keys(panels).forEach(k => panels[k].classList.toggle('hidden', k !== tab));
+  }));
+
+  function safeParse(text){ try{ return JSON.parse(text); }catch{ return null; } }
+  function childrenOf(node){
+    const values = node && node.nodes_list && node.nodes_list.$values;
+    return Array.isArray(values) ? values : [];
+  }
+  function extractRoots(json){
+    const proc = json && json.Process;
+    const values = (proc && (proc.$values ?? proc.values)) ?? [];
+    const tryNodes = Array.isArray(values) ? values : (Array.isArray(json) ? json : [json]);
+    const roots = [];
+    for (const v of tryNodes) {
+      if (!v) continue;
+      const kids = childrenOf(v);
+      if (kids.length) roots.push(v);
+      else if (v.nodes_list) roots.push(v);
+      else if (v.$type) roots.push(Object.assign({}, v));
+    }
+    return roots;
+  }
+
+  function asRangeString(val){
+    if (val==null) return '';
+    if (Array.isArray(val) && val.length>=2) return String(val[0]) + ' ~ ' + String(val[1]);
+    if (typeof val === 'object'){
+      const lo = (val.MinLimit ?? val.minLimit ?? val.min ?? val.Min ?? val.low ?? val.Low ?? val.lower ?? val.LSL ?? val.LowerLimit ?? val.LL);
+      const hi = (val.MaxLimit ?? val.maxLimit ?? val.max ?? val.Max ?? val.high ?? val.High ?? val.upper ?? val.USL ?? val.UpperLimit ?? val.UL);
+      if (lo!=null && hi!=null) return String(lo) + ' ~ ' + String(hi);
+      const from = (val.from ?? val.start ?? val.a);
+      const to = (val.to ?? val.end ?? val.b);
+      if (from!=null && to!=null) return String(from) + ' ~ ' + String(to);
+    }
+    if (typeof val === 'string'){
+      const m = val.match(/^\s*([+-]?\d+(\.\d+)?)\s*[,~\-]\s*([+-]?\d+(\.\d+)?)\s*$/);
+      if (m) return m[1] + ' ~ ' + m[3];
+      try { const o = JSON.parse(val); return asRangeString(o); } catch {}
+    }
+    return String(typeof val==='object' ? JSON.stringify(val) : (val ?? ''));
+  }
+  function prettySpecValue(type, valueLike){
+    if ((type||'').toLowerCase()==='range') return asRangeString(valueLike);
+    return (typeof valueLike === 'object') ? JSON.stringify(valueLike) : String(valueLike ?? '');
+  }
+
+  
+  function formatSpecType(t){
+    const s = String(t || '').trim();
+    const lower = s.toLowerCase();
+    if (lower === 'notequal' || lower === 'not_equal' || lower === 'not equal') return '!=';
+    if (lower === 'equal' || lower === 'eq') return '=';
+    if (lower === 'greaterthan' || lower === 'greater_than' || lower === 'greater than') return '>';
+    if (lower === 'lessthan' || lower === 'less_than' || lower === 'less than') return '<';
+    return s;
+  }
+
+function renderBoolIcon(val){
+    const s = String(val ?? '').toLowerCase().trim();
+    // 規則：只有明確寫 OFF/false/0/no 才當作關閉，其餘（包含沒寫）都視為 ON
+    const isExplicitOff = (val === false) || ['false','off','0','no','n','f'].includes(s);
+    const isExplicitOn  = (val === true)  || ['true','on','1','yes','y','t'].includes(s);
+    const isOn = isExplicitOn || !isExplicitOff;
+    // true 顯示綠色小圓點，false 不顯示
+    return isOn ? '<span class="bool-dot on"></span>' : '';
+  }
+
+  function normalizeSpecContainer(specStr){
+    let raw = specStr;
+    for (let i = 0; i < 3; i++) {
+      if (raw && typeof raw === 'string') {
+        try {
+          // 先照標準 JSON 解析一次
+          raw = JSON.parse(raw);
+        } catch (e) {
+          // 若失敗，嘗試移除尾端逗號（Newtonsoft.Json 會容忍的那種）
+          const cleaned = raw.replace(/,\s*([\]}])/g, '$1');
+          try {
+            raw = JSON.parse(cleaned);
+          } catch (e2) {
+            // 還是失敗就放棄，不再繼續嘗試
+            break;
+          }
+        }
+      }
+    }
+    return raw;
+  }
+  function shouldBypass(p){
+    const type = (p && p.SpecType && String(p.SpecType).toLowerCase()) || '';
+    const mes = (p && p.MES && String(p.MES).toLowerCase()) || '';
+    const flag = (p && (p.Bypass === true || p.ByPass === true));
+    return type === 'bypass' || mes === 'bypass' || flag === true;
+  }
+  function collectSpecsFromNode(node){
+    const out=[];
+    if (!node || !node.Spec) return out;
+    const parsed = normalizeSpecContainer(node.Spec);
+    const list = parsed && Array.isArray(parsed.specParams) ? parsed.specParams : [];
+    for (const p of list) {
+      // 不再過濾 BYPASS，全部顯示
+      const lower = (p && p.SpecType && p.SpecType.toLowerCase()) || '';
+      const valueLike = (lower === 'range')
+        ? (p.SpecValue !== undefined ? p.SpecValue : p)
+        : (p.SpecValue !== undefined ? p.SpecValue : p.Value ?? p.Target ?? p);
+      let displayValue = prettySpecValue(p && p.SpecType, valueLike);
+      if (lower === 'bypass') displayValue = '';
+      const mesRaw = p && p.MES;
+      const csvRaw = p && (p.CSV ?? p.Csv);
+      out.push({
+        name: p && p.Name,
+        type: p && p.SpecType,
+        value: displayValue,
+        mes: mesRaw,
+        csv: csvRaw
+      });
+    }
+    return out;
+  }
+
+  function walkNodes(root, visit){
+    if (!root) return;
+    const st=[root];
+    while (st.length){
+      const cur = st.pop();
+      visit && visit(cur);
+      const kids = childrenOf(cur);
+      for (let i=kids.length-1; i>=0; i--) st.push(kids[i]);
+    }
+  }
+
+  function getAllSpecs(){
+    const rows=[];
+    for (const f of files){
+      const roots = extractRoots(f.data);
+      for (const r of roots){
+        walkNodes(r, (n)=> {
+          const specs = collectSpecsFromNode(n);
+          const hasSpecs = specs && specs.length > 0;
+          const errRaw = (n && n.ErrorCode);
+          const errStr = (errRaw === undefined || errRaw === null) ? '' : String(errRaw);
+          const hasError = errStr.trim() !== '';
+          if (hasSpecs){
+            specs.forEach(g => rows.push({
+              desc: n && n.Description || '(no description)',
+              error: errStr,
+              kind: 'spec',
+              ...g
+            }));
+          } else if (hasError){
+            rows.push({
+              desc: n && n.Description || '(no description)',
+              error: errStr,
+              kind: 'error',
+              name: '',
+              type: '',
+              value: '',
+              mes: n && (n.MES ?? n.Mes),
+              csv: n && (n.CSV ?? n.Csv)
+            });
+          }
+        });
+      }
+    }
+    return rows;
+  }
+  function collectErrorCodes(){
+    const list = [];
+    for (const f of files){
+      const roots = extractRoots(f.data);
+      for (const r of roots){
+        walkNodes(r, function(n){
+          if (!n) return;
+          const ec = n.ErrorCode;
+          if (ec === undefined || ec === null) return;
+          const s = String(ec);
+          if (!s || s === 'Undefined') return;
+          const name = n.Description || n.Name || n.NodeName || '(未命名節點)';
+          list.push({
+            name: name,
+            code: s
+          });
+        });
+      }
+    }
+    return list;
+  }
+
+
+  
+  function updateFileSummary(){
+    if (!fileSummary) return;
+    if (!files || files.length === 0){
+      fileSummary.textContent = '';
+      return;
+    }
+    if (files.length === 1){
+      fileSummary.textContent = ' — ' + (files[0].name || '');
+      return;
+    }
+    const names = files.map(f => f && f.name).filter(Boolean);
+    const joined = names.join(', ');
+    fileSummary.textContent = ' — ' + (joined.length > 80 ? joined.slice(0,77) + '…' : joined);
+  }
+
+  function updateFlowTypeChips(){
+    if (!flowTypeChips) return;
+    flowTypeChips.innerHTML = '';
+    if (!files || files.length === 0) return;
+
+    const typeMap = new Map();
+    for (const f of files){
+      const roots = extractRoots(f.data);
+      for (const r of roots){
+        const stack = childrenOf(r).slice();
+        while (stack.length){
+          const n = stack.shift();
+          const cls = (n && (n.ClassName || n.Class)) || '';
+          const key = cls || '(no class)';
+          typeMap.set(key, (typeMap.get(key) || 0) + 1);
+          const kids = childrenOf(n);
+          kids.forEach(c => stack.push(c));
+        }
+      }
+    }
+    const entries = Array.from(typeMap.entries()).sort((a,b)=> a[0].localeCompare(b[0]));
+    entries.forEach(([key,count])=>{
+      const label = document.createElement('label');
+      label.className = 'pill flow-type-pill';
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.value = key;
+      input.checked = flowSelectedTypes.has(key);
+      if (input.checked){
+        label.classList.add('flow-type-pill--active');
+      }
+      input.addEventListener('change', () => {
+        if (input.checked) {
+          flowSelectedTypes.add(key);
+          label.classList.add('flow-type-pill--active');
+        } else {
+          flowSelectedTypes.delete(key);
+          label.classList.remove('flow-type-pill--active');
+        }
+        render();
+      });
+      const span = document.createElement('span');
+      const displayName = (key === '(no class)') ? key : key.split('.').pop();
+      span.textContent = displayName + ' (' + count + ')';
+      if (key !== displayName) span.title = key;
+      label.appendChild(input);
+      label.appendChild(span);
+      flowTypeChips.appendChild(label);
+    });
+  }
+
+
+  function render(){
+    updateFileSummary();
+    updateFlowTypeChips();
+    // FLOW
+    flowList.innerHTML = '';
+    const q = (flowSearchText || '').trim().toLowerCase();
+    const hasTypeFilter = flowSelectedTypes && flowSelectedTypes.size > 0;
+    if (files.length === 0) {
+      flowEmpty.classList.remove('hidden');
+    } else {
+      flowEmpty.classList.add('hidden');
+      files.forEach((f, idx) => {
+        const roots = extractRoots(f.data);
+        const card = document.createElement('div'); card.className = 'card'; card.style.overflow='auto';
+        const head = document.createElement('div'); head.className = 'fileHead';
+        head.innerHTML = '<div style="display:flex;align-items:center;gap:8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-width="2" d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path stroke-width="2" d="M14 3v6h6"></path></svg><strong>' + escapeHtml(f.name) + '</strong></div>';
+        const rm = document.createElement('button'); rm.className = 'remove'; rm.textContent = '移除';
+        rm.onclick = () => { files.splice(idx,1); render(); };
+        head.appendChild(rm);
+        card.appendChild(head);
+
+        if (roots.length) {
+          roots.forEach((r, ridx) => {
+            const secTitle = document.createElement('div');
+            secTitle.className = 'muted'; secTitle.style.textTransform='uppercase'; secTitle.style.fontSize='12px'; secTitle.style.margin='6px 0';
+            secTitle.textContent = 'MainThread #' + (ridx+1);
+            card.appendChild(secTitle);
+
+            const tree = document.createElement('div'); tree.className='tree';
+            const kids = childrenOf(r);
+            if (q || hasTypeFilter){
+              const flatList = [];
+              const visit = (node, depth) => {
+                const desc = (node && node.Description) || '';
+                const id = (node && (node.ID || node.Id)) || '';
+                const err = (node && node.ErrorCode) || '';
+                const clsName = (node && (node.ClassName || node.Class)) || '';
+                const combo = (desc + ' ' + id + ' ' + err + ' ' + clsName).toLowerCase();
+                const key = clsName || '(no class)';
+                const matchesSearch = !q || combo.indexOf(q) !== -1;
+                const matchesType = !hasTypeFilter || (flowSelectedTypes && flowSelectedTypes.has(key));
+                if (matchesSearch && matchesType){
+                  flatList.push({ node, depth });
+                }
+                const cs = childrenOf(node);
+                cs.forEach(c => visit(c, depth+1));
+              };
+              kids.forEach(c => visit(c, 0));
+              if (flatList.length === 0){
+                tree.innerHTML = '<div class="muted">No nodes matched this search term in this MainThread.</div>';
+              } else {
+                flatList.forEach(item => {
+                  const row = renderNode(item.node, 0);
+                  tree.appendChild(row);
+                });
+              }
+            } else {
+              if (kids.length === 0) { tree.innerHTML = '<div class="muted">此根節點沒有子流程</div>'; }
+              else { kids.forEach((c)=> tree.appendChild(renderNode(c, 0))); }
+            }
+            card.appendChild(tree);
+          });
+        } else {
+          const warn = document.createElement('div'); warn.className = 'muted'; warn.style.color = '#dc2626';
+          warn.innerHTML = '⚠ 無法識別流程根節點，請確認檔案格式。';
+          card.appendChild(warn);
+        }
+        flowList.appendChild(card);
+      });
+    }
+    // SPEC — 全域彙整（首欄 Description）
+    specTableWrap.innerHTML = '';
+    if (files.length === 0) {
+      specEmpty.classList.remove('hidden'); specCount.textContent = '0 項';
+    } else {
+      const all = getAllSpecs();
+      // 依勾選條件過濾：隱藏 Bypass / ErrorCode=Undefined / Spec 空白
+      let rows = all;
+      if (chkSpecHideBypass && chkSpecHideBypass.checked){
+        rows = rows.filter(r => {
+          const t = (r.type == null ? '' : String(r.type)).trim().toLowerCase();
+          return t !== 'bypass';
+        });
+      }
+      if (chkSpecHideErrUndef && chkSpecHideErrUndef.checked){
+        rows = rows.filter(r => {
+          const errText = (r.error == null ? '' : String(r.error)).trim().toLowerCase();
+          return errText !== 'undefined';
+        });
+      }
+      if (chkSpecHideEmptySpec && chkSpecHideEmptySpec.checked){
+        // 空白 Spec = 這個節點根本沒有 Spec，只單純 ErrorCode 行
+        // 這時候在 getAllSpecs() 會被標記成 kind = 'error'
+        rows = rows.filter(r => r.kind !== 'error');
+      }
+      if (chkUnique.checked){
+        const map = new Map();
+        for (const r of rows){
+          if (!map.has(r.name)) map.set(r.name, r);
+        }
+        rows = Array.from(map.values());
+      }
+      specCount.textContent = rows.length + ' 項';
+      specEmpty.classList.add('hidden');
+      const wrap = document.createElement('div'); wrap.className='card'; wrap.style.overflow='auto';
+      if (rows.length === 0) {
+        wrap.textContent = '掃描完成，但沒有任何可解析的 Spec（可能為空字串或 JSON 格式錯誤）。';
+      } else {
+        const table = document.createElement('table'); table.className='table';
+        // legend removed legend.innerHTML = '<div class="muted" style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">\n  <span style="font-size:12px;">色彩圖例：</span>\n  <span class="spec-type-badge range">Range</span>\n  <span class="spec-type-badge number">Number</span>\n  <span class="spec-type-badge bool">Bool</span>\n  <span class="spec-type-badge text">Text</span>\n</div>';
+        
+        table.className='table spec-table'; table.innerHTML = '<thead><tr>'
+          + '<th style="width:24%;">Description</th>'
+          + '<th style="width:18%;">Name</th>'
+          + '<th style="width:10%;">Type</th>'
+          + '<th style="width:24%;">Criteria</th>'
+          + '<th style="width:16%;">ErrorCode</th>'
+          + '<th style="width:8%;text-align:center;">MES</th>'
+          + '<th style="width:8%;text-align:center;">CSV</th>'
+          + '</tr></thead>';
+        const tbody = document.createElement('tbody');
+        rows.forEach(row => {
+          const tr = document.createElement('tr');
+          // decide class by type
+          const t = String(row.type||'').toLowerCase();
+          let cls = 'text';
+          if (t.indexOf('equal')>=0) cls = 'equal';
+          else if (t.indexOf('range')>=0) cls = 'range';
+          else if (t.indexOf('bool')>=0 || t.indexOf('boolean')>=0) cls = 'bool';
+          else if (t.indexOf('int')>=0 || t.indexOf('float')>=0 || t.indexOf('number')>=0 || t.indexOf('double')>=0) cls = 'number';
+          tr.className = 'spec-row ' + cls;
+          const typeLabel = formatSpecType(row.type);
+          const typeCell = '<span class="spec-type-badge '+cls+'">'+escapeHtml(typeLabel)+'</span>';
+          const mesCell = renderBoolIcon(row.mes);
+          const csvCell = renderBoolIcon(row.csv);
+          tr.innerHTML = '<td>'+escapeHtml(row.desc||"")+'</td>' +
+                         '<td>'+escapeHtml(row.name||"")+'</td>' +
+                         '<td>'+ typeCell +'</td>' +
+                         '<td><div class="mono">'+escapeHtml(row.value||"")+'</div></td>' +
+                         '<td><div class="mono">'+escapeHtml(row.error||"")+'</div></td>' +
+                         '<td style="text-align:center;">'+mesCell+'</td>' +
+                         '<td style="text-align:center;">'+csvCell+'</td>';
+          tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        wrap.appendChild(table);
+      }
+      specTableWrap.appendChild(wrap);
+    }
+
+    // DEVICES（含 HikVision、LeadShine、ModBus、DUT_Simu、HTTPMESCommand）
+    devWrap.innerHTML = '';
+    if (files.length === 0) {
+      devEmpty.classList.remove('hidden');
+    } else {
+      devEmpty.classList.add('hidden');
+      const wrap = document.createElement('div'); wrap.className='card'; wrap.style.overflow='auto';
+      const all = [];
+      const excluded = []; // 不排除 HTTPMESCommand
+      files.forEach(f => {
+        const devs = (((f.data||{}).Devices||{}).$values)||[];
+        devs.forEach(d => {
+          const cls = String(d.ClassName || d.Class || '');
+          const skip = excluded.some(x => cls.indexOf(x) >= 0);
+          if (!skip) all.push({file:f.name, dev:d});
+        });
+      });
+      if (all.length === 0) {
+        wrap.textContent = '此檔案未包含 Devices 可顯示項目（或皆被過濾）。';
+      } else {
+        const table = document.createElement('table'); 
+        table.className='table';
+        table.innerHTML = '<thead><tr><th style="width:20%;">Name</th><th>Summary</th></tr></thead>';
+        const tbody = document.createElement('tbody');
+        all.forEach(({file, dev}, i) => {
+          const cls = String(dev.ClassName || dev.Class || '');
+          const shortCls = (cls.split('.').pop()) || cls || 'Device';
+          const headTr = document.createElement('tr');
+          headTr.className = 'dev-row';
+
+          const nameTd = document.createElement('td');
+          nameTd.className = 'dev-name-cell';
+          nameTd.innerHTML = '<strong>'+escapeHtml(dev.Description||"(未命名裝置)")+'</strong>';
+
+          const summaryTd = document.createElement('td');
+          summaryTd.className = 'dev-summary-cell';
+          let summaryHtml = '<span class="badge muted">'+escapeHtml(shortCls)+'</span>';
+          const url = dev.Url || dev.URL || dev.URLAddress || dev.IpAddress || dev.IP || dev.IPAddress || '';
+          if (url){
+            summaryHtml += ' <span class="mono">'+escapeHtml(String(url))+'</span>';
+          }
+          summaryHtml += ' <span class="muted" style="margin-left:8px;">點一下展開詳細</span>';
+          summaryTd.innerHTML = summaryHtml;
+
+          headTr.appendChild(nameTd);
+          headTr.appendChild(summaryTd);
+
+          const detailTr = document.createElement('tr');
+          detailTr.className = 'dev-detail-row hidden';
+          const detailTd = document.createElement('td');
+          detailTd.colSpan = 2;
+          detailTd.innerHTML = deviceDetailsHTML(dev);
+          detailTr.appendChild(detailTd);
+
+          headTr.addEventListener('click', () => {
+            detailTr.classList.toggle('hidden');
+          });
+
+          tbody.appendChild(headTr);
+          tbody.appendChild(detailTr);
+        });
+        table.appendChild(tbody);
+        wrap.appendChild(table);
+      }
+      devWrap.appendChild(wrap);
+    }
+
+
+// ERRORCODES — 彙整流程中 ErrorCode != "Undefined" 的節點
+    errWrap.innerHTML = '';
+    if (files.length === 0) {
+      errEmpty.classList.remove('hidden');
+    } else {
+      errEmpty.classList.add('hidden');
+      const errs = collectErrorCodes();
+      if (!errs.length){
+        errWrap.innerHTML = '<div class="card muted" style="text-align:center;">流程中未找到 ErrorCode（或皆為 "Undefined"）。</div>';
+      } else {
+        let t = '<div class="card" style="overflow:auto"><table class="table spec-table error-table">';
+        t += '<thead><tr><th style="width:55%;text-align:left;">Name</th><th style="text-align:left;">ErrorCode</th></tr></thead><tbody>';
+        errs.forEach(function(it){
+          t += '<tr class="spec-row text error-row">'
+             + '<td class="error-name">'+escapeHtml(it.name||"(未命名節點)")+'</td>'
+             + '<td class="mono error-code"><span class="error-chip">'+escapeHtml(String(it.code))+'</span></td>'
+             + '</tr>';
+        });
+        t += '</tbody></table></div>';
+        errWrap.innerHTML = t;
+      }
+    }
+
+  }
+
+  function parseMaybeJson(val){
+    if (val==null) return null;
+    if (typeof val === 'string'){
+      try { return JSON.parse(val); } catch { return null; }
+    }
+    if (val && val.$values && Array.isArray(val.$values)) return val.$values;
+    return val;
+  }
+
+  
+  
+  function parseEnvirIni(str){
+    if (!str || typeof str !== 'string') return null;
+    const text = str.replace(/\r\n?/g, '\n').replace(/\n+/g, ' ').trim();
+    if (!text) return null;
+    const tokens = [];
+    const re = /(\[[^\]]+\]|[A-Za-z0-9_%]+=[^\s\[]+)/g;
+    let m;
+    while ((m = re.exec(text))){
+      tokens.push(m[1]);
+    }
+    if (!tokens.length) return null;
+    const sections = [];
+    let cur = { name: '', kv: [] };
+    sections.push(cur);
+    tokens.forEach(tok => {
+      if (tok[0] === '['){
+        cur = { name: tok.slice(1, -1), kv: [] };
+        sections.push(cur);
+      } else {
+        const eq = tok.indexOf('=');
+        if (eq > 0){
+          const k = tok.slice(0, eq);
+          const v = tok.slice(eq+1);
+          cur.kv.push([k, v]);
+        }
+      }
+    });
+    return sections;
+  }
+
+function deviceDetailsHTML(dev){
+    const cls = String((dev && (dev.ClassName || dev.Class)) || '');
+    const htmls = [];
+
+    // EnvirVariable (INI 格式)：解析成分段表格顯示
+    const env = dev && dev.EnvirVariable;
+    if (typeof env === 'string' && env.trim()){
+      const iniSections = parseEnvirIni(env);
+      if (iniSections && iniSections.length){
+        let envHtml = '<div style="margin-bottom:10px;"><div class="badge">EnvirVariable (INI)</div>';
+        iniSections.forEach(sec => {
+          if (!sec || !sec.kv || !sec.kv.length) return;
+          envHtml += '<div style="margin-top:6px;">';
+          if (sec.name){
+            envHtml += '<div class="mono" style="font-weight:600;margin-bottom:4px;">['+escapeHtml(sec.name)+']</div>';
+          }
+          envHtml += '<div style="overflow:auto"><table class="table"><thead><tr><th style="width:180px;">Key</th><th>Value</th></tr></thead><tbody>';
+          sec.kv.forEach(function(pair){
+            const k = pair[0], v = pair[1];
+            envHtml += '<tr><td>'+escapeHtml(k)+'</td><td class="mono">'+escapeHtml(v)+'</td></tr>';
+          });
+          envHtml += '</tbody></table></div></div>';
+        });
+        envHtml += '</div>';
+        htmls.push(envHtml);
+      }
+    }
+
+// 不想顯示的基礎屬性
+            const hiddenKeys = new Set([
+      'ErrorMsg','FailStopGoto','Journal','ShowItem','Simu','NodeIcon','ExID',
+      'Enable','ID','ClassName','$type','nodes_list',
+      'Description','Path','Segments','Offsets','ProgramOrigin',
+      'SetIO_List','GetIO_List','Config','CommandTable',
+      'EnvirVariable'
+    ]);
+    // 依裝置類型再隱藏已經有專區顯示過的欄位，避免重複
+    const dynHidden = new Set(hiddenKeys);
+    if (cls.indexOf('AutoTestSystem.Equipment.Teach.IOTeach')>=0){
+      dynHidden.add('SelectedDevices');
+    }
+    if (cls.indexOf('AutoTestSystem.Equipment.ControlDevice.SerialPortDevice')>=0){
+      ['PortName','BaudRate','baudRate','Parity','DataBits','StopBits','Newline'].forEach(k=>dynHidden.add(k));
+    }
+    if (cls.indexOf('AutoTestSystem.Equipment.IO.ModBus_IO')>=0){
+      ['SlaveID','PortName','BaudRate','baudRate','SetIO_List','GetIO_List'].forEach(k=>dynHidden.add(k));
+    }
+    if (cls.indexOf('AutoTestSystem.Equipment.Motion.LeadShine')>=0){
+      ['SlaveID','Resolution','CheckStatus','EMG_Channel','EMG_CH_LS','Tacc','Dac','PortName','baudRate','BaudRate','ErrorCode'].forEach(k=>dynHidden.add(k));
+    }
+    if (cls.indexOf('AutoTestSystem.Equipment.CCD.HikVision')>=0){
+      ['CCDDeviceName','Profile_path','ExposureTime','ExposureDelayTime'].forEach(k=>dynHidden.add(k));
+    }
+    if (cls.indexOf('AutoTestSystem.DUT.DUT_Simu')>=0){
+      dynHidden.add('Config');
+    }
+
+
+    // ===== 1. 通用：列出所有屬性（扣掉 hiddenKeys） =====
+    if (dev && typeof dev === 'object'){
+      const kvs = [];
+      Object.keys(dev).forEach(k => {
+        if (dynHidden.has(k)) return;
+        const v = dev[k];
+        if (v === undefined || v === null) return;
+        if (v === '' || v === false) return;
+        if (k === 'ErrorCode' && String(v) === 'Undefined') return;
+
+        let text;
+        if (v && typeof v === 'object' && v.$values && Array.isArray(v.$values)){
+          // 一般 {$values:[...]} 直接列出
+          text = v.$values.map(x => String(x)).join(', ');
+        } else if (typeof v === 'object'){
+          try { text = JSON.stringify(v); }
+          catch(e){ text = String(v); }
+        } else {
+          text = String(v);
+        }
+        kvs.push([k, text]);
+      });
+      if (kvs.length){
+        kvs.sort((a,b)=> a[0].localeCompare(b[0]));
+        htmls.push('<div class="grid2">');
+        kvs.forEach(pair => {
+          const k = pair[0], v = pair[1];
+          htmls.push('<div class="kv"><div class="k">'+escapeHtml(k)+'</div><div>'+escapeHtml(v)+'</div></div>');
+        });
+        htmls.push('</div>');
+      }
+    }
+
+    // ===== 2. 特定裝置額外區塊 =====
+
+    // IOTeach — 顯示 SelectedDevices 清單
+    if (cls.indexOf('AutoTestSystem.Equipment.Teach.IOTeach')>=0){
+      const list = dev && dev.SelectedDevices && dev.SelectedDevices.$values;
+      if (Array.isArray(list) && list.length){
+        htmls.push(
+          '<div style="margin-top:10px;">'+
+            '<div class="badge">SelectedDevices</div>'+
+            '<div class="mono" style="margin-top:4px;padding:6px 8px;border:1px solid #ddd;border-radius:6px;background:#f9fafb;">'+
+            list.map(x => escapeHtml(String(x))).join('<br>')+
+            '</div>'+
+          '</div>'
+        );
+      }
+    }
+
+    // SerialPortDevice — 串列埠設定
+    if (cls.indexOf('AutoTestSystem.Equipment.ControlDevice.SerialPortDevice')>=0){
+      const sp = {};
+      if (dev && dev.PortName !== undefined) sp.PortName = dev.PortName;
+      const br = dev && (dev.BaudRate !== undefined ? dev.BaudRate : dev.baudRate);
+      if (br !== undefined) sp.BaudRate = br;
+      if (dev && dev.Parity !== undefined) sp.Parity = dev.Parity;
+      if (dev && dev.DataBits !== undefined) sp.DataBits = dev.DataBits;
+      if (dev && dev.StopBits !== undefined) sp.StopBits = dev.StopBits;
+      if (dev && dev.Newline !== undefined) sp.Newline = dev.Newline;
+      if (Object.keys(sp).length){
+        htmls.push('<div style="margin-top:10px;"><div class="badge">Serial Port</div>'+kvTable(sp)+'</div>');
+      }
+    }
+
+    // ModBus IO
+    if (cls.indexOf('AutoTestSystem.Equipment.IO.ModBus_IO')>=0){
+      const mod = {};
+      if (dev && dev.SlaveID !== undefined) mod.SlaveID = dev.SlaveID;
+      if (dev && dev.PortName !== undefined) mod.PortName = dev.PortName;
+      const br = dev && (dev.BaudRate !== undefined ? dev.BaudRate : dev.baudRate);
+      if (br !== undefined) mod.BaudRate = br;
+      if (Object.keys(mod).length){
+        htmls.push('<div style="margin-top:10px;"><div class="badge">ModBus IO Params</div>'+kvTable(mod)+'</div>');
+      }
+      const setList = parseMaybeJson(dev && dev.SetIO_List) || [];
+      const getList = parseMaybeJson(dev && dev.GetIO_List) || [];
+      htmls.push('<div class="flexcol" style="margin-top:10px;">');
+      htmls.push('<div class="half"><div class="badge">SetIO_List ('+setList.length+')</div>'+ioListTable(setList)+'</div>');
+      htmls.push('<div class="half"><div class="badge">GetIO_List ('+getList.length+')</div>'+ioListTable(getList)+'</div>');
+      htmls.push('</div>');
+    }
+
+    // LeadShine 馬達參數
+    if (cls.indexOf('AutoTestSystem.Equipment.Motion.LeadShine')>=0){
+      const keys = ["SlaveID","Resolution","CheckStatus","EMG_Channel","EMG_CH_LS","Tacc","Dac","PortName","baudRate","BaudRate","ErrorCode"];
+      const obj = {};
+      keys.forEach(k => { if (dev && dev[k] !== undefined) obj[k] = dev[k]; });
+      if (obj.baudRate !== undefined && obj.BaudRate === undefined){ obj.BaudRate = obj.baudRate; delete obj.baudRate; }
+      if (Object.keys(obj).length){
+        htmls.push('<div style="margin-top:10px;"><div class="badge">LeadShine Motor Params</div>'+kvTable(obj)+'</div>');
+      }
+    }
+
+    // HikVision 重要參數
+    if (cls.indexOf('AutoTestSystem.Equipment.CCD.HikVision')>=0){
+      const ccd = {};
+      if (dev && dev.CCDDeviceName !== undefined) ccd.CCDDeviceName = dev.CCDDeviceName;
+      if (dev && dev.Profile_path !== undefined) ccd.Profile_path = dev.Profile_path;
+      if (dev && dev.ExposureTime !== undefined) ccd.ExposureTime = dev.ExposureTime;
+      if (dev && dev.ExposureDelayTime !== undefined) ccd.ExposureDelayTime = dev.ExposureDelayTime;
+      if (Object.keys(ccd).length){
+        htmls.push('<div style="margin-top:10px;"><div class="badge">HikVision Params</div>'+kvTable(ccd)+'</div>');
+      }
+    }
+
+    // MotionTeach / Motion Path Segments
+    if (cls.indexOf('MotionTeach')>=0 || cls.indexOf('Motion.Path')>=0){
+      const segs = getMotionTeachSegments(dev);
+      if (Array.isArray(segs) && segs.length){
+        htmls.push('<div style="margin-top:10px;"><div class="badge">Motion Segments ('+segs.length+')</div>'+segmentsOnlyNameAndMotions(segs)+'</div>');
+      }
+    }
+
+    // DUT_Simu Config
+    if (cls.indexOf('AutoTestSystem.DUT.DUT_Simu')>=0){
+      let cfg = parseMaybeJson(dev && dev.Config);
+      if (!cfg && dev && typeof dev.Config !== 'undefined') cfg = dev.Config;
+      if (cfg !== undefined && cfg !== null){
+        htmls.push('<div style="margin-top:10px;"><div class="badge">DUT_Simu Config</div>'+configToTable(cfg)+'</div>');
+      }
+    }
+
+    // HTTPMESCommand CommandTable or一般 CommandTable
+    const ct = dev && dev.CommandTable;
+    if (ct){
+      try {
+        const clsName = String((dev && (dev.ClassName || dev.Class)) || '');
+        let parsed = ct;
+        if (typeof parsed === 'string'){
+          try { parsed = JSON.parse(parsed); } catch(e) {}
+        }
+        let tableHtml = '';
+        // 只要是 HTTPMESCommand，就優先嘗試用表格方式顯示
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)){
+          const keys = Object.keys(parsed);
+          if (keys.length){
+            tableHtml += '<div style="overflow:auto"><table class="table"><thead><tr><th style="width:40%;">Command</th><th>Payload</th></tr></thead><tbody>';
+            keys.forEach(function(cmd){
+              const rawVal = parsed[cmd];
+              let pretty = '';
+              if (typeof rawVal === 'string'){
+                let inner = null;
+                try { inner = JSON.parse(rawVal); } catch(e) {}
+                if (inner && typeof inner === 'object'){
+                  try { pretty = JSON.stringify(inner, null, 2); } catch(e) { pretty = String(rawVal); }
+                } else {
+                  pretty = String(rawVal);
+                }
+              } else if (typeof rawVal === 'object'){
+                try { pretty = JSON.stringify(rawVal, null, 2); } catch(e) { pretty = String(rawVal); }
+              } else {
+                pretty = String(rawVal);
+              }
+              tableHtml += '<tr><td class="mono">'+escapeHtml(String(cmd))+'</td><td><div class="mono">'+escapeHtml(pretty)+'</div></td></tr>';
+            });
+            tableHtml += '</tbody></table></div>';
+          }
+        }
+        if (tableHtml){
+          htmls.push('<div style="margin-top:10px;"><div class="badge">CommandTable</div>'+tableHtml+'</div>');
+        } else {
+          // fallback: 保持原本的 JSON 區塊顯示方式
+          htmls.push('<div style="margin-top:10px;"><div class="badge">CommandTable</div><pre class="mono">'+escapeHtml(JSON.stringify(ct, null, 2))+'</pre></div>');
+        }
+      } catch(e){
+        htmls.push('<div class="muted">CommandTable 解析失敗</div>');
+      }
+    }
+
+    return '<div class="card" style="background:#fbfdff">'+(htmls.join('') || '<div class="muted">（無更多可顯示欄位）</div>')+'</div>';
+  }
+
+
+  function getMotionTeachSegments(dev){
+    let segs = parseMaybeJson(dev && (dev.Segments ?? dev.MotionSegments ?? dev.PathList));
+    if (segs && segs.$values) segs = segs.$values;
+    if (Array.isArray(segs) && segs.length) return segs;
+    const pathObj = parseMaybeJson(dev && dev.Path);
+    if (pathObj){
+      let pSegs = parseMaybeJson(pathObj.Segments ?? pathObj.MotionSegments ?? pathObj.PathList);
+      if (pSegs && pSegs.$values) pSegs = pSegs.$values;
+      if (Array.isArray(pSegs)) return pSegs;
+    }
+    return [];
+  }
+
+  function ioListTable(list){
+    if (!Array.isArray(list) || !list.length) return '<div class="muted">（空）</div>';
+    let out = '<div style="overflow:auto"><table class="table"><thead><tr><th>#</th><th>SensorName</th><th>Channel</th></tr></thead><tbody>';
+    list.forEach((it,idx)=>{
+      const sName = it && (it.SensorName ?? it.Name ?? '');
+      const ch = it && (it.Channel ?? it.CH ?? '');
+      out += '<tr><td>'+ (idx+1) +'</td><td>'+ escapeHtml(sName) +'</td><td class="mono">'+ escapeHtml(String(ch)) +'</td></tr>';
+    });
+    out += '</tbody></table></div>';
+    return out;
+  }
+
+  function kvTable(obj){
+    let out = '<div style="overflow:auto"><table class="table"><thead><tr><th>Key</th><th>Value</th></tr></thead><tbody>';
+    Object.keys(obj).forEach(k=>{
+      const v = obj[k];
+      if (v === null || v === undefined || v === false || v === '' || (k === 'ErrorCode' && String(v) === 'Undefined')) return;
+      const shown = (typeof v === 'object') ? JSON.stringify(v) : String(v);
+      out += '<tr><td>'+escapeHtml(k)+'</td><td class="mono">'+escapeHtml(shown)+'</td></tr>';
+    });
+    out += '</tbody></table></div>';
+    return out;
+  }
+
+  function anyToTable(value){
+    if (Array.isArray(value)){
+      let out = '<div style="overflow:auto"><table class="table"><thead><tr><th>#</th><th>Value</th></tr></thead><tbody>';
+      value.forEach((v,i)=>{
+        const shown = (typeof v === 'object') ? JSON.stringify(v) : String(v);
+        out += '<tr><td>'+ (i+1) +'</td><td class="mono">'+escapeHtml(shown)+'</td></tr>';
+      });
+      out += '</tbody></table></div>';
+      return out;
+    } else if (value && typeof value === 'object'){
+      return kvTable(value);
+    } else {
+      return '<div class="mono">'+escapeHtml(String(value))+'</div>';
+    }
+  }
+
+  function configToTable(value){
+    try {
+      if (typeof value === 'string'){
+        try { value = JSON.parse(value); } catch {}
+      }
+      if (value && value.$values && Array.isArray(value.$values)){
+        value = value.$values;
+      }
+      if (Array.isArray(value)){
+        const rows = value.map(v => {
+          let obj = v;
+          if (typeof v === 'string'){
+            try { obj = JSON.parse(v); } catch { obj = { Value: v }; }
+          }
+          if (obj && typeof obj === 'object'){
+            const k = (obj.Key !== undefined) ? obj.Key : (obj.name || obj.k || '');
+            const val = (obj.Value !== undefined) ? obj.Value : (obj.value || obj.v || '');
+            return { Key: k, Value: val };
+          }
+          return { Key: '', Value: String(v) };
+        });
+        let out = '<div style="overflow:auto"><table class="table"><thead><tr><th style="width:40%;">Key</th><th>Value</th></tr></thead><tbody>';
+        rows.forEach(r => {
+          const vShown = (typeof r.Value === 'object') ? JSON.stringify(r.Value) : String(r.Value ?? '');
+          out += '<tr><td>'+escapeHtml(String(r.Key ?? ''))+'</td><td class="mono">'+escapeHtml(vShown)+'</td></tr>';
+        });
+        out += '</tbody></table></div>';
+        return out;
+      }
+      if (value && typeof value === 'object'){
+        let out = '<div style="overflow:auto"><table class="table"><thead><tr><th style="width:40%;">Key</th><th>Value</th></tr></thead><tbody>';
+        Object.keys(value).forEach(k => {
+          const v = value[k];
+          const vShown = (typeof v === 'object') ? JSON.stringify(v) : String(v ?? '');
+          out += '<tr><td>'+escapeHtml(String(k))+'</td><td class="mono">'+escapeHtml(vShown)+'</td></tr>';
+        });
+        out += '</tbody></table></div>';
+        return out;
+      }
+      return anyToTable(value);
+    } catch(e){
+      return anyToTable(value);
+    }
+  }
+
+  function segmentsOnlyNameAndMotions(segs){
+    if (!segs.length) return '<div class="muted">（無 Segments）</div>';
+    let out = '';
+    segs.forEach((s, idx)=>{
+      const segName = s && (s.SegmentName || s.Name || s.Description || ('Segment #'+(idx+1)));
+      const motions = parseMotionsAsArrayOfAxisObjects(s && (s.Motions ?? s.MotionList ?? s.Actions));
+      out += '<div class="seg-box">';
+      out += '<div class="seg-title"><span class="badge">#'+(idx+1)+'</span> '+escapeHtml(String(segName))+'</div>';
+      out += motionsListHTML(motions);
+      out += '</div>';
+    });
+    return out;
+  }
+
+  function parseMotionsAsArrayOfAxisObjects(m){
+    let obj = parseMaybeJson(m);
+    if (!obj) return [];
+    if (obj.$values && Array.isArray(obj.$values)) obj = obj.$values;
+    if (Array.isArray(obj)) {
+      return obj.map((item, i)=> {
+        if (item && typeof item === 'object' && !Array.isArray(item)) return Object.assign({Axis: String(item.Axis ?? i)}, item);
+        return { Axis: String(i), Value: item };
+      });
+    }
+    if (typeof obj === 'object') {
+      const arr = [];
+      Object.keys(obj).forEach(k => {
+        if (k[0] === '$') return;
+        const v = obj[k];
+        if (v && typeof v === 'object' && !Array.isArray(v)) {
+          const clone = Object.assign({}, v);
+          clone.Axis = k;
+          Object.keys(clone).forEach(kk => { if (kk[0] === '$') delete clone[kk]; });
+          arr.push(clone);
+        } else {
+          arr.push({ Axis: k, Value: v });
+        }
+      });
+      return arr;
+    }
+    return [];
+  }
+
+  function motionsListHTML(list){
+    if (!Array.isArray(list) || !list.length) return '<div class="muted">（無 Motions）</div>';
+    let out = '';
+    list.forEach((it, i)=>{
+      const axis = it && it.Axis !== undefined ? String(it.Axis) : ('#'+(i+1));
+      const shownObj = Object.assign({}, it);
+      delete shownObj.Axis;
+      if (shownObj.$type) delete shownObj.$type;
+      Object.keys(shownObj).forEach(k=>{
+        if (k==='Value' && typeof shownObj[k]==='string' && shownObj[k].indexOf('System.Collections.Generic.Dictionary`2[[')>=0){
+          delete shownObj[k];
+        }
+      });
+      out += '<div class="motion-box">';
+      out += '<div class="motion-title">Axis：'+escapeHtml(axis)+'</div>';
+      out += kvTable(shownObj);
+      out += '</div>';
+    });
+    return out;
+  }
+
+  
+  const FLOW_HIDDEN_BASE = new Set([
+    'Description','Enable','ID','isTestItem','ExID','NodeIcon','Prefix','ShowItem',
+    'Spec','nodes_list','$type','Class'
+  ]);
+
+function renderNode(node, depth){
+    depth = depth || 0;
+
+    const wrap = document.createElement('div'); 
+    wrap.className='node';
+
+    const cls = String(node && (node.ClassName || node.Class || '') || '');
+    if (cls.indexOf('AutoTestSystem.Script.Script_IO_ControlTeach')>=0){
+      wrap.classList.add('node-ioctl');
+    } else if (cls.indexOf('AutoTestSystem.Script.Script_CCD_Capture_Pro')>=0){
+      wrap.classList.add('node-ccd');
+    }
+
+    const kids = childrenOf(node);
+
+    const head = document.createElement('div'); 
+    head.className='nodeHead level-'+depth + (kids.length ? ' parent' : '');
+
+    const arrow = document.createElement('span'); 
+    arrow.textContent = '›'; 
+    arrow.style.transform='rotate(90deg)'; 
+    arrow.style.display='inline-block'; 
+    arrow.style.width='16px';
+
+    const title = document.createElement('span'); 
+    title.className = 'node-title';
+    title.textContent = (node && node.Description) ? node.Description : '(no description)';
+
+    const p1Raw = node && (node.P1_Send || node.P1_send || node.P1Send);
+    let p1Span = null;
+    if (p1Raw){
+      p1Span = document.createElement('span');
+      p1Span.className = 'node-p1send';
+      p1Span.textContent = p1Raw;
+      p1Span.title = p1Raw; // hover 顯示完整指令
+    }
+
+    const badges = document.createElement('span');
+    badges.style.display='inline-flex'; badges.style.gap='6px'; badges.style.marginLeft='auto';
+
+    const clsHead = String(node && (node.ClassName || node.Class || '') || '');
+    const isIOCtlHead = clsHead.indexOf('AutoTestSystem.Script.Script_IO_ControlTeach')>=0;
+    const isGenericHead = clsHead.indexOf('AutoTestSystem.Script.Script_Extra_Generic_Command')>=0;
+    badges.innerHTML =
+      ((!isGenericHead && node && node.DeviceSel) ? '<span class="badge">⚙️ '+escapeHtml(node.DeviceSel)+'</span>' : '') +
+      ((!isGenericHead && !isIOCtlHead && node && typeof node.Timeout === 'number' && node.Timeout > 0) ? '<span class="badge">⏲️ '+node.Timeout+'</span>' : '') +
+      ((!isGenericHead && !isIOCtlHead && node && ('ON_OFF' in node)) ? '<span class="badge">⏻ '+escapeHtml(String(node.ON_OFF))+'</span>' : '') +
+      ((node && node.Enable !== false) ? '<span class="badge" style="color:#16a34a;">✅ 啟用</span>' : '<span class="badge" style="color:#dc2626;">⛔ 停用</span>');
+
+    head.appendChild(arrow);
+    head.appendChild(title);
+    if (p1Span) head.appendChild(p1Span);
+    head.appendChild(badges);
+    wrap.appendChild(head);
+
+    const body = document.createElement('div'); 
+    body.className='nodeBody hidden level-'+depth;
+
+    const grid = document.createElement('div'); 
+    grid.className='grid2';
+
+    const isIOCtl = cls.indexOf('AutoTestSystem.Script.Script_IO_ControlTeach')>=0;
+    const modeNum = Number(node && node.Mode);
+
+    if (isIOCtl) {
+
+      if (modeNum === 0) {
+        grid.appendChild(
+          kv('ON_OFF', html('<div class="mono">'+escapeHtml(String(node && node.ON_OFF))+'</div>'))
+        );
+        grid.appendChild(
+          kv('DO', html('<span class="mono">'+escapeHtml(String((node && node.DO_SensorName) || ''))+'</span>'))
+        );
+      }
+
+      if (modeNum === 1) {
+        grid.appendChild(
+          kv('DI', html('<span class="mono">'+escapeHtml(String((node && node.DI_SensorName) || ''))+'</span>'))
+        );
+        if (node && ('Check' in node)) {
+          grid.appendChild(
+            kv('Check', html('<div class="mono">'+escapeHtml(String(node.Check))+'</div>'))
+          );
+        }
+        if (node && node.Timeout != null) {
+          grid.appendChild(
+            kv('Timeout', html('<div class="mono">'+escapeHtml(String(node.Timeout))+'</div>'))
+          );
+        }
+      }
+
+      if (modeNum === 2) {
+        grid.appendChild(
+          kv('ON_OFF', html('<div class="mono">'+escapeHtml(String(node && node.ON_OFF))+'</div>'))
+        );
+        grid.appendChild(
+          kv('DO', html('<span class="mono">'+escapeHtml(String((node && node.DO_SensorName) || ''))+'</span>'))
+        );
+        grid.appendChild(
+          kv('DI', html('<span class="mono">'+escapeHtml(String((node && node.DI_SensorName) || ''))+'</span>'))
+        );
+        if (node && ('Check' in node)) {
+          grid.appendChild(
+            kv('Check', html('<div class="mono">'+escapeHtml(String(node.Check))+'</div>'))
+          );
+        }
+        if (node && node.Timeout != null) {
+          grid.appendChild(
+            kv('Timeout', html('<div class="mono">'+escapeHtml(String(node.Timeout))+'</div>'))
+          );
+        }
+      }
+
+      if (modeNum === 3) {
+        let arr = parseMaybeJson(node && node.MutiIO_From);
+        if (!Array.isArray(arr) && node && typeof node.MutiIO_From === 'string') {
+          try { arr = JSON.parse(node.MutiIO_From); } catch(e){}
+        }
+        grid.appendChild(
+          kv('MutiIO_From', html(multiIOFromTable(arr)))
+        );
+      }
+    } else {
+      if (node && node.DI_SensorName) {
+        grid.appendChild(
+          kv('DI', html('<span class="mono">'+escapeHtml(node.DI_SensorName)+'</span>'))
+        );
+      }
+      if (node && node.DO_SensorName) {
+        grid.appendChild(
+          kv('DO', html('<span class="mono">'+escapeHtml(node.DO_SensorName)+'</span>'))
+        );
+      }
+      if (node && ('Mode' in node)) {
+        grid.appendChild(
+          kv('Mode', document.createTextNode(String(node.Mode)))
+        );
+      }
+    }
+
+    if (node && node.PASS_GOTO) {
+      grid.appendChild(
+        kv('PASS_GOTO', html('<code class="mono">'+escapeHtml(node.PASS_GOTO)+'</code>'))
+      );
+    }
+    if (node && node.FAIL_GOTO) {
+      grid.appendChild(
+        kv('FAIL_GOTO', html('<code class="mono">'+escapeHtml(node.FAIL_GOTO)+'</code>'))
+      );
+    }
+    if (node && node.FailJump) {
+      grid.appendChild(
+        kv('FailJump', html('<code class="mono">'+escapeHtml(node.FailJump)+'</code>'))
+      );
+    }
+
+    if (cls.indexOf('AutoTestSystem.Script.Script_Extra_Generic_Command')>=0){
+      // For Generic_Command, simplify right panel: only show P1_Send + ErrorCode
+      while (grid.firstChild) grid.removeChild(grid.firstChild);
+
+      if (node && node.P1_Send !== undefined && String(node.P1_Send).trim() !== ''){
+        grid.appendChild(
+          kv('P1_Send', html('<div class="mono">'+escapeHtml(String(node.P1_Send))+'</div>'))
+        );
+      }
+      if (node && node.ErrorCode != null){
+        var ec = String(node.ErrorCode);
+        var clsErr = String(node && (node.ClassName || node.Class || '') || '');
+        if (clsErr.indexOf('AutoTestSystem.Script.Script_Extra_Generic_Command')>=0){
+          // Generic_Command already handled above in its own block
+        } else if (ec.trim() !== '' && ec !== 'Undefined'){
+          grid.appendChild(
+            kv('ErrorCode', html('<div class="mono">'+escapeHtml(ec)+'</div>'))
+          );
+        }
+      }
+    }
+
+
+    if (node && node.ExposureTime != null) {
+      var et = String(node.ExposureTime);
+      if (et.trim() !== '') {
+        grid.appendChild(
+          kv('ExposureTime', html('<div class="mono">'+escapeHtml(et)+'</div>'))
+        );
+      }
+    }
+    if (node && node.ExposureDelayTime != null) {
+      var edt = String(node.ExposureDelayTime);
+      if (edt.trim() !== '') {
+        grid.appendChild(
+          kv('ExposureDelayTime', html('<div class="mono">'+escapeHtml(edt)+'</div>'))
+        );
+      }
+    }
+
+    if (node && node.DelayTime != null) {
+      var dt = String(node.DelayTime);
+      if (dt.trim() !== '') {
+        grid.appendChild(
+          kv('DelayTime', html('<div class="mono">'+escapeHtml(dt)+'</div>'))
+        );
+      }
+    }
+
+    if (node && node.RetryTimes != null) {
+      var rt = String(node.RetryTimes);
+      if (rt.trim() !== '') {
+        grid.appendChild(
+          kv('RetryTimes', html('<div class="mono">'+escapeHtml(rt)+'</div>'))
+        );
+      }
+    }
+
+    if (node && node.ErrorCode != null) {
+      var ec = String(node.ErrorCode);
+      var clsErr = String(node && (node.ClassName || node.Class || '') || '');
+      if (clsErr.indexOf('AutoTestSystem.Script.Script_Extra_Generic_Command')>=0) {
+        // Generic_Command: ErrorCode will be shown together with P1_Send (still keep same layout)
+        if (ec.trim() !== '' && ec !== 'Undefined') {
+          grid.appendChild(
+            kv('ErrorCode', html('<div class="mono">'+escapeHtml(ec)+'</div>'))
+          );
+        }
+      } else {
+        if (ec.trim() !== '' && ec !== 'Undefined') {
+          grid.appendChild(
+            kv('ErrorCode', html('<div class="mono">'+escapeHtml(ec)+'</div>'))
+          );
+        }
+      }
+    }
+
+    if (node && node.Journal != null) {
+      var j = String(node.Journal);
+      if (j.trim() !== '') {
+        var journalHtml = '';
+        try {
+          var parsed = JSON.parse(j);
+          if (Array.isArray(parsed)) {
+            journalHtml += '<div class="journal-list">';
+            parsed.forEach(function(entry) {
+              if (!entry) return;
+              var d = entry.Date != null ? String(entry.Date) : '';
+              var u = entry.User != null ? String(entry.User) : '';
+              var log = entry.Log != null ? String(entry.Log) : '';
+              journalHtml += '<div class="journal-item">';
+              journalHtml += '<div class="journal-header">';
+              if (d) {
+                journalHtml += '<span class="journal-date">'+escapeHtml(d)+'</span>';
+              }
+              if (u) {
+                journalHtml += '<span class="journal-user">'+escapeHtml(u)+'</span>';
+              }
+              journalHtml += '</div>';
+              if (log) {
+                journalHtml += '<div class="journal-log">'+escapeHtml(log)+'</div>';
+              }
+              journalHtml += '</div>';
+            });
+            journalHtml += '</div>';
+          } else {
+            journalHtml = '<div class="mono">'+escapeHtml(j)+'</div>';
+          }
+        } catch(e) {
+          journalHtml = '<div class="mono">'+escapeHtml(j)+'</div>';
+        }
+        grid.appendChild(
+          kv('Journal', html(journalHtml))
+        );
+      }
+    }
+
+    body.appendChild(grid);
+
+    if (cls.indexOf('AutoTestSystem.Script.Script_1Mot1Com_MotionHome_Pro')>=0){
+      const kvHome = {};
+      if (node.HomeTimeOut !== undefined) kvHome.HomeTimeOut = node.HomeTimeOut;
+      if (node.MotorDeviceSel !== undefined) kvHome.MotorDeviceSel = node.MotorDeviceSel;
+      const homeBox = document.createElement('div'); homeBox.style.marginTop='8px';
+      homeBox.innerHTML = '<div class="badge">MotionHome 設定</div>' + kvTable(kvHome);
+      body.appendChild(homeBox);
+
+      let motor = node.MotorDevice;
+      if (typeof motor === 'string'){
+        try { motor = JSON.parse(motor); } catch {}
+      }
+      if (motor && motor.$values) motor = motor.$values;
+      const keys = ["SlaveID","Resolution","CheckStatus","EMG_Channel","EMG_Status","PositiveLimit_Channel","PositiveLimit_Status","NegativeLimit_Channel","NegativeLimit_Status","LimitEnable","PositiveLimit","NegativeLimit","Mode","ZSignal","Dir","HomePosition","StopPosition","Stop_Vel_HS","Stop_Vel_LS","Tacc","Dac","PortName","baudRate","BaudRate"];
+      const obj = {};
+      keys.forEach(k => { if (motor && motor[k] !== undefined) obj[k] = motor[k]; });
+      if (obj.baudRate !== undefined && obj.BaudRate === undefined){ obj.BaudRate = obj.baudRate; delete obj.baudRate; }
+      const motorBox = document.createElement('div'); motorBox.style.marginTop='8px';
+      motorBox.innerHTML = '<div class="badge">MotorDevice</div>' + (Object.keys(obj).length ? kvTable(obj) : '<div class="muted">（MotorDevice 無指定欄位或為空）</div>');
+      body.appendChild(motorBox);
+    }
+
+    const specs = collectSpecsFromNode(node);
+    if (specs.length){
+      const box = document.createElement('div'); box.className='card spec-mini';
+      const h4 = document.createElement('h4'); h4.textContent = 'Spec（解析摘要）';
+      box.appendChild(h4);
+      const table = document.createElement('table'); table.className='table';
+      table.innerHTML = '<thead><tr><th style="width:40%;">Name</th><th style="width:18%;">Type</th><th style="width:24%;">Value</th><th style="width:8%;">MES</th><th style="width:8%;">CSV</th></tr></thead>';
+      const tb = document.createElement('tbody');
+      specs.forEach(s=>{
+        const tr = document.createElement('tr');
+        const mesCell = renderBoolIcon(s.mes);
+        const csvCell = renderBoolIcon(s.csv);
+        tr.innerHTML = '<td>'+escapeHtml(s.name||"")+'</td>' +
+                       '<td>'+escapeHtml(formatSpecType(s.type))+'</td>' +
+                       '<td><div class="mono">'+escapeHtml(s.value||"")+'</div></td>' +
+                       '<td style="text-align:center;">'+mesCell+'</td>' +
+                       '<td style="text-align:center;">'+csvCell+'</td>';
+        tb.appendChild(tr);
+      });
+      table.appendChild(tb);
+      box.appendChild(table);
+      body.appendChild(box);
+    }
+
+
+    if (flowShowAllProps && node && typeof node === 'object'){
+      const hidden = new Set(FLOW_HIDDEN_BASE);
+      if (node.DI_SensorName !== undefined) hidden.add('DI_SensorName');
+      if (node.DO_SensorName !== undefined) hidden.add('DO_SensorName');
+      if ('Mode' in node) hidden.add('Mode');
+      if (node.PASS_GOTO !== undefined) hidden.add('PASS_GOTO');
+      if (node.FAIL_GOTO !== undefined) hidden.add('FAIL_GOTO');
+      if (node.FailJump !== undefined) hidden.add('FailJump');
+      if (node.DelayTime !== undefined) hidden.add('DelayTime');
+      if (node.RetryTimes !== undefined) hidden.add('RetryTimes');
+      if (node.Timeout !== undefined) hidden.add('Timeout');
+      if (node.ExposureTime !== undefined) hidden.add('ExposureTime');
+      if (node.ExposureDelayTime !== undefined) hidden.add('ExposureDelayTime');
+      if (node.ErrorCode !== undefined) hidden.add('ErrorCode');
+      if (node.Journal !== undefined) hidden.add('Journal');
+      // 雜訊欄位
+      hidden.add('FailStopGoto');
+      hidden.add('ErrorMsg');
+
+      const tblWrap = document.createElement('div');
+      tblWrap.style.marginTop = '8px';
+      tblWrap.innerHTML = '<div class="badge">所有屬性</div>';
+
+      const tbl = document.createElement('table');
+      tbl.className = 'table spec-table';
+      const tbody = document.createElement('tbody');
+
+      Object.keys(node).sort().forEach(function(k){
+        if (hidden.has(k)) return;
+        const v = node[k];
+        if (v === undefined || v === null) return;
+        if (v === '' || v === false) return;
+        const tr = document.createElement('tr');
+        const th = document.createElement('th');
+        th.textContent = k;
+        const td = document.createElement('td');
+        if (v && typeof v === 'object'){
+          try {
+            td.textContent = JSON.stringify(v);
+          } catch(e){
+            td.textContent = String(v);
+          }
+        } else {
+          td.textContent = String(v);
+        }
+        tr.appendChild(th);
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      });
+
+      tbl.appendChild(tbody);
+      tblWrap.appendChild(tbl);
+      body.appendChild(tblWrap);
+    }
+
+    if (kids.length) {
+      const ks = document.createElement('div'); ks.style.marginTop='8px';
+      kids.forEach((c)=> ks.appendChild(renderNode(c, depth+1)));
+      body.appendChild(ks);
+    }
+
+    wrap.appendChild(body);
+
+    head.addEventListener('click', ()=> {
+      const open = body.classList.contains('hidden');
+      body.classList.toggle('hidden', !open);
+      arrow.style.transform = open ? 'rotate(0deg)' : 'rotate(90deg)';
+
+      const selected = document.querySelectorAll('.tree .node.selected');
+      selected.forEach(el => el.classList.remove('selected'));
+      wrap.classList.add('selected');
+    });
+    return wrap;
+  }
+
+  function multiIOFromTable(arr){
+    if (!Array.isArray(arr) || !arr.length) return '<div class="muted">（無資料或格式不符）</div>';
+    let out = '<div style="overflow:auto"><table class="table"><thead><tr><th>#</th><th>IO_Name</th><th>IO_Status</th></tr></thead><tbody>';
+    arr.forEach((it, idx)=>{
+      const name = it && (it.IO_Name ?? it.Name ?? '');
+      const st = it && (it.IO_Status ?? it.Status ?? '');
+      out += '<tr><td>'+(idx+1)+'</td><td>'+escapeHtml(String(name))+'</td><td class="mono">'+escapeHtml(String(st))+'</td></tr>';
+    });
+    out += '</tbody></table></div>';
+    return out;
+  }
+
+  function kv(k, vNode){
+    const row = document.createElement('div'); row.className='kv';
+    const kDiv = document.createElement('div'); kDiv.className='k'; kDiv.textContent = k;
+    const vDiv = document.createElement('div'); vDiv.appendChild(vNode);
+    row.appendChild(kDiv); row.appendChild(vDiv);
+    return row;
+  }
+  function html(h){ const d=document.createElement('div'); d.innerHTML=h; return d.firstChild; }
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
+    });
+  }
+
+  fileInput.addEventListener('change', async (ev)=>{
+    const list = ev.target.files;
+    if (!list || !list.length) return;
+    const f = list[0];
+    const text = await f.text();
+    const json = safeParse(text) || {};
+
+    // 重新匯入時，重置檢視狀態（搜尋 / 篩選 / Spec 勾選）
+    // Flow 狀態
+    flowShowAllProps = false;
+    flowSearchText = '';
+    flowSelectedTypes = new Set();
+    if (chkFlowAllProps) chkFlowAllProps.checked = false;
+    if (txtFlowSearch) txtFlowSearch.value = '';
+
+    // SPEC 狀態（回到預設：只隱藏 ErrorCode=Undefined 與空白 Spec）
+    if (typeof chkSpecHideBypass !== 'undefined' && chkSpecHideBypass) chkSpecHideBypass.checked = false;
+    if (typeof chkSpecHideErrUndef !== 'undefined' && chkSpecHideErrUndef) chkSpecHideErrUndef.checked = true;
+    if (typeof chkSpecHideEmptySpec !== 'undefined' && chkSpecHideEmptySpec) chkSpecHideEmptySpec.checked = true;
+    if (typeof chkUnique !== 'undefined' && chkUnique) chkUnique.checked = false;
+
+    files = [{ name: f.name, data: json }];
+    fileInput.value = '';
+    render();
+  });
+
+  (function(){
+    const hash = location.hash.replace(/^#/, '');
+    if (!hash) return;
+    try {
+      const text = atob(hash);
+      const json = JSON.parse(text);
+      files.push({ name: 'from-hash.json', data: json });
+      render();
+    } catch {}
+  })();
+
+  
+
+  chkUnique.addEventListener('change', render);
+  if (chkSpecHideBypass) chkSpecHideBypass.addEventListener('change', render);
+  if (chkSpecHideErrUndef) chkSpecHideErrUndef.addEventListener('change', render);
+  if (chkSpecHideEmptySpec) chkSpecHideEmptySpec.addEventListener('change', render);
+
+  render();
+})();
+</script>
+</body>
+</html>
