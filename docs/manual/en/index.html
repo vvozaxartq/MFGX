@@ -1,0 +1,462 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="zh-Hant">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<link href="../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.4.2, mkdocs-material-8.2.5" name="generator"/>
+<title>Overview - MFGX Manual / 操作說明</title>
+<link href="../assets/stylesheets/main.2d9f7617.min.css" rel="stylesheet"/>
+<link href="../assets/stylesheets/palette.e6a45f82.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../stylesheets/extra.css" rel="stylesheet"/>
+<script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="none" data-md-color-primary="none" data-md-color-scheme="" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#mfgx-system-overview">
+          跳轉到
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="MFGX Manual / 操作說明" class="md-header__button md-logo" data-md-component="logo" href=".." title="MFGX Manual / 操作說明">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            MFGX Manual / 操作說明
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Overview
+            
+          </span>
+</div>
+</div>
+</div>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="搜尋" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="搜尋" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path></svg>
+</button>
+</nav>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            正在初始化搜尋引擎
+          </div>
+<ol class="md-search-result__list"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="MFGX Manual / 操作說明" class="md-nav__button md-logo" data-md-component="logo" href=".." title="MFGX Manual / 操作說明">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"></path></svg>
+</a>
+    MFGX Manual / 操作說明
+  </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="ConfigEditor.html">
+        Environment Variable Editor
+      </a>
+</li><li class="md-nav__item">
+<a class="md-nav__link" href="CreateScript.html">
+        Create a New Script
+      </a>
+</li><li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+          Overview
+          <span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="index.html">
+        Overview
+      </a>
+<nav aria-label="目錄" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目錄
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#quick-index">
+    Quick Index
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-positioning-and-use-cases">
+    1. Positioning and use cases
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-key-features">
+    2. Key features
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-terms-and-core-concepts">
+    3. Terms and core concepts
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-architecture-layered">
+    4. Architecture (layered)
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-oop-design-and-extension-points">
+    5. OOP design and extension points
+  </a>
+<nav aria-label="5. OOP design and extension points" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#51-core-abstractions-base-classes-interfaces">
+    5.1 Core abstractions (base classes / interfaces)
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#52-inheritance-shared-skeleton-project-specific-differences">
+    5.2 Inheritance: “shared skeleton + project-specific differences”
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#53-composition-replaceable-devicesservices">
+    5.3 Composition: “replaceable devices/services”
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#54-typical-relationships">
+    5.4 Typical relationships
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#55-how-to-extend-the-system">
+    5.5 How to extend the system
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-system-requirements">
+    6. System requirements
+  </a>
+<nav aria-label="6. System requirements" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#61-software">
+    6.1 Software
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#62-hardware-baseline-recommendation">
+    6.2 Hardware (baseline recommendation)
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="目錄" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      目錄
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#quick-index">
+    Quick Index
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#1-positioning-and-use-cases">
+    1. Positioning and use cases
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#2-key-features">
+    2. Key features
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#3-terms-and-core-concepts">
+    3. Terms and core concepts
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#4-architecture-layered">
+    4. Architecture (layered)
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#5-oop-design-and-extension-points">
+    5. OOP design and extension points
+  </a>
+<nav aria-label="5. OOP design and extension points" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#51-core-abstractions-base-classes-interfaces">
+    5.1 Core abstractions (base classes / interfaces)
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#52-inheritance-shared-skeleton-project-specific-differences">
+    5.2 Inheritance: “shared skeleton + project-specific differences”
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#53-composition-replaceable-devicesservices">
+    5.3 Composition: “replaceable devices/services”
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#54-typical-relationships">
+    5.4 Typical relationships
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#55-how-to-extend-the-system">
+    5.5 How to extend the system
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#6-system-requirements">
+    6. System requirements
+  </a>
+<nav aria-label="6. System requirements" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#61-software">
+    6.1 Software
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#62-hardware-baseline-recommendation">
+    6.2 Hardware (baseline recommendation)
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="mfgx-system-overview">MFGX System Overview<a class="headerlink" href="#mfgx-system-overview" title="Permanent link">¶</a></h1>
+<p>MFGX is an <strong>Automatic Test System (ATS)</strong> for manufacturing environments. It is used to execute product test flows and support quality control.</p>
+<p>The core objective is:
+<strong>recipe-driven workflows (Recipe/TestPlan) + extensible scripts (Scripts) + stable device integration and data traceability (Logging/Traceability)</strong>.</p>
+<hr/>
+<h2 id="quick-index">Quick Index<a class="headerlink" href="#quick-index" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="#system-position">1. Positioning and use cases</a></li>
+<li><a href="#key-features">2. Key features</a></li>
+<li><a href="#terminology">3. Terms and core concepts</a></li>
+<li><a href="#architecture">4. Architecture (layered)</a></li>
+<li><a href="#oop">5. OOP design and extension points</a></li>
+<li><a href="#requirements">6. System requirements</a></li>
+</ul>
+<hr/>
+<h2 id="1-positioning-and-use-cases">1. Positioning and use cases<a class="headerlink" href="#1-positioning-and-use-cases" title="Permanent link">¶</a></h2>
+<p><a id="system-position"></a></p>
+<p><strong>MFGX</strong> is primarily used on production lines and in lab test stations. It supports:</p>
+<ul>
+<li><strong>Multi-device integration</strong>: DUTs, IO cards, CCD cameras, motion controllers, and communication interfaces</li>
+<li><strong>Recipe/TestPlan workflows</strong>: organizing test steps and nodes as a configurable recipe</li>
+<li><strong>Multi-DUT parallelism and rotary production lines</strong>: including multi-station coordination, rotation rhythm, and load/unload pacing</li>
+</ul>
+<hr/>
+<h2 id="2-key-features">2. Key features<a class="headerlink" href="#2-key-features" title="Permanent link">¶</a></h2>
+<p><a id="key-features"></a></p>
+<ul>
+<li><strong>Multi-Device Support</strong>: controls and tests multiple DUTs (Device Under Test) concurrently.</li>
+<li><strong>Recipe/TestPlan Workflow</strong>: defines nodes and parameters in a tree structure, reducing maintenance costs compared to hard-coded flows.</li>
+<li><strong>Flexible Script Framework</strong>: extends capabilities through Script classes (communication, measurement, judgment, utilities).</li>
+<li><strong>User-friendly UI</strong>: presents test steps and prompts with an intuitive operator flow; supports step-by-step / section execution for debugging and fast issue isolation; can show images/screenshots in the flow (e.g., camera preview, comparison results, error illustrations) to improve adoption and reduce mis-operations.</li>
+<li><strong>Permission Management</strong>: multi-level user roles and operational constraints.</li>
+<li><strong>Data Logging / Traceability</strong>: logs, CSV, images, reports, and backup path strategies.</li>
+</ul>
+<hr/>
+<h2 id="3-terms-and-core-concepts">3. Terms and core concepts<a class="headerlink" href="#3-terms-and-core-concepts" title="Permanent link">¶</a></h2>
+<p><a id="terminology"></a></p>
+<ul>
+<li><strong>Recipe / TestPlan</strong>: the flow recipe that defines container and script nodes, parameters, specs, and fail-jump / branching strategies.</li>
+<li><strong>Script</strong>: the smallest functional unit responsible for device communication, measurement, judgment, or utilities (files, strings, waits, comparisons, etc.).</li>
+<li><strong>Container</strong>: the workflow structuring unit responsible for sequence/parallel/retry/conditions/exception routing.</li>
+<li><strong>DUT</strong>: Device Under Test. Typically maps to a device instance plus UI dashboard and test state/data containers.</li>
+<li><strong>Dashboard</strong>: the UI section corresponding to each DUT (TreeView/DataGridView/Log/status lights, etc.).</li>
+</ul>
+<hr/>
+<h2 id="4-architecture-layered">4. Architecture (layered)<a class="headerlink" href="#4-architecture-layered" title="Permanent link">¶</a></h2>
+<p><a id="architecture"></a></p>
+<p>MFGX can typically be viewed as a layered stack:
+<strong>UI → Workflow/Recipe → Script Engine → Device Integration → Data Persistence</strong></p>
+<div class="highlight"><pre><span></span><code>MFGX System
+├── UI Layer
+│   ├── Main window / Login / Recipe management / Dashboard
+│
+├── Business Layer
+│   ├── RecipeManagement (load/manage recipes)
+│   ├── Global / Context (global state, environment, shared resources)
+│   ├── DUT_BASE (DUT lifecycle / data / state)
+│   └── RotaryTestController (rotary / multi-station pacing and coordination)
+│
+├── Execution Layer
+│   ├── Container (flow structures: sequence / parallel / retry / conditions)
+│   └── ScriptBase (script nodes: Pre / Process / Post)
+│
+├── Device Layer
+│   ├── DUT devices
+│   ├── IO devices (DI/DO, Modbus, etc.)
+│   ├── CCD cameras (capture, analysis)
+│   └── Motion (motors, positioning, teaching)
+│
+└── Data Layer
+    ├── INI/JSON (configs, environment variables, recipes)
+    ├── Logs/CSV/Image (records and traceability)
+    └── Reports/DB (reports, SQLite, etc.)
+</code></pre></div>
+<hr/>
+<h2 id="5-oop-design-and-extension-points">5. OOP design and extension points<a class="headerlink" href="#5-oop-design-and-extension-points" title="Permanent link">¶</a></h2>
+<p><a id="oop"></a></p>
+<p>MFGX maintainability and extensibility rely on <strong>OOP abstraction / inheritance / composition</strong>.</p>
+<h3 id="51-core-abstractions-base-classes-interfaces">5.1 Core abstractions (base classes / interfaces)<a class="headerlink" href="#51-core-abstractions-base-classes-interfaces" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>DUT_BASE (abstract/base class)</strong>
+  Defines common DUT behavior: state, data containers, dashboard binding, and lifecycle (init/start/end/cleanup).</li>
+<li><strong>ScriptBase (abstract/base class)</strong>
+  Defines the common script node framework: parameter access, logging, spec checking, error handling, and the three-stage pattern (Pre/Process/Post).</li>
+<li><strong>Container (flow-structure classes)</strong>
+  Responsible for <em>how to run</em>: sequence, parallelism, retry, branching, fail-jump/exception routing, etc.</li>
+</ul>
+<h3 id="52-inheritance-shared-skeleton-project-specific-differences">5.2 Inheritance: “shared skeleton + project-specific differences”<a class="headerlink" href="#52-inheritance-shared-skeleton-project-specific-differences" title="Permanent link">¶</a></h3>
+<p>Typical patterns:
+- Add a new product DUT: <code>class DUT_XXX : DUT_BASE</code>
+- Add a new functional script: <code>class Script_YYY : ScriptBase</code></p>
+<p><strong>Recommendation</strong>: keep common rules and guardrails in the base classes, and implement only the differences in derived classes.</p>
+<h3 id="53-composition-replaceable-devicesservices">5.3 Composition: “replaceable devices/services”<a class="headerlink" href="#53-composition-replaceable-devicesservices" title="Permanent link">¶</a></h3>
+<p>Prefer composition to let DUTs/Scripts obtain services:
+- DUT owns services: CameraService, MotionService, IOService, CommService...
+- Scripts access services via Context / ServiceLocator / DI</p>
+<p><strong>Benefit</strong>: when hardware or communication methods change, changes are localized within services instead of spreading across DUTs/Scripts.</p>
+<h3 id="54-typical-relationships">5.4 Typical relationships<a class="headerlink" href="#54-typical-relationships" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code>Recipe/TestPlan
+   └─ Container (sequence/parallel/conditions)
+        └─ ScriptBase (framework)
+             └─ Script_xxx (project/device implementations)
+
+DUT_BASE (lifecycle / data / state)
+   ├─ Dashboard (UI)
+   └─ Services/Devices (Camera/IO/Motion/Comm...)
+</code></pre></div>
+<h3 id="55-how-to-extend-the-system">5.5 How to extend the system<a class="headerlink" href="#55-how-to-extend-the-system" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Add a DUT</strong>: inherit <code>DUT_BASE</code>, implement connection/init/data/UI binding.</li>
+<li><strong>Add a Script</strong>: inherit <code>ScriptBase</code>, implement test logic and spec judgment.</li>
+<li><strong>Add workflow structures</strong>: extend/configure <code>Container</code> (parallelism, retries, fail-jump logic).</li>
+<li><strong>Add device integrations</strong>: encapsulate communications/operations in Services/Adapters.</li>
+<li><strong>Extension principle</strong>: “recipe-driven + modular scripts + decoupled devices” enables safe feature growth.</li>
+</ul>
+<hr/>
+<h2 id="6-system-requirements">6. System requirements<a class="headerlink" href="#6-system-requirements" title="Permanent link">¶</a></h2>
+<p><a id="requirements"></a></p>
+<h3 id="61-software">6.1 Software<a class="headerlink" href="#61-software" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Operating System</strong>: Windows 7 or later</li>
+<li><strong>.NET Framework</strong>: .NET Framework 4.7.2 (or newer depending on the project)</li>
+</ul>
+<h3 id="62-hardware-baseline-recommendation">6.2 Hardware (baseline recommendation)<a class="headerlink" href="#62-hardware-baseline-recommendation" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>CPU</strong>: Intel Core i3 or higher</li>
+<li><strong>RAM</strong>: 4GB or more (higher recommended for imaging / multi-DUT)</li>
+<li><strong>Disk</strong>: at least 1GB (adjust based on logs/images volume)</li>
+<li><strong>Display</strong>: 1280×720 or higher</li>
+<li><strong>Peripherals</strong>: based on station requirements (IO cards, cameras, motor controllers, barcode scanners, etc.)</li>
+</ul>
+</article>
+</div>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+<div class="mfgx-footer">
+<img alt="Company Logo" class="mfgx-footer__logo" src="../img/Logo.jpg" style="height:64px; width:auto;"/>
+<div class="mfgx-footer__text">
+<div class="mfgx-footer__copyright">© 2026 Lite-On Technology Corp. All rights reserved.</div>
+<div><strong>Document Title:</strong> MFGX Operation Guide</div>
+<div><strong>Maintenance:</strong> SLA / MIS Team</div>
+<div><strong>Updated:</strong> 2026-01-17</div>
+</div>
+</div>
+</div>
+</div>
+</div></footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "..", "features": ["content.code.copy"], "search": "../assets/javascripts/workers/search.bd0b6b67.min.js", "translations": {"clipboard.copied": "\u5df2\u8907\u88fd", "clipboard.copy": "\u8907\u88fd", "search.config.lang": "ja", "search.config.pipeline": "trimmer, stemmer", "search.config.separator": "[\\s\\-\u3000\u3001\u3002\uff0c\uff0e\uff1f\uff1b]+", "search.placeholder": "\u641c\u5c0b", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "\u6c92\u6709\u7b26\u5408\u7684\u9805\u76ee", "search.result.one": "\u627e\u5230 1 \u500b\u7b26\u5408\u7684\u9805\u76ee", "search.result.other": "\u627e\u5230 # \u500b\u7b26\u5408\u7684\u9805\u76ee", "search.result.placeholder": "\u6253\u5b57\u9032\u884c\u641c\u5c0b", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+<script src="../assets/javascripts/bundle.467223ff.min.js"></script>
+<script src="../javascripts/lang-switch.js"></script>
+</body>
+</html>

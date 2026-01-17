@@ -17,3 +17,25 @@
   font-size: 13px;
   line-height: 1.5;
 }
+
+/* ===== Language toggle (EN / 中文) ===== */
+.lang-switch-btn {
+  margin-left: .4rem;
+  padding: 0 .65rem;
+  height: 1.8rem;
+  line-height: 1.8rem;
+  border: 1px solid rgba(255, 255, 255, .55);
+  border-radius: 999px;
+  font-size: .75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: inherit;
+  opacity: .95;
+}
+
+.lang-switch-btn:hover {
+  opacity: 1;
+}
