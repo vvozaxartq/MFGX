@@ -1,0 +1,19 @@
+.mfgx-footer{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  padding-top: 8px;
+}
+
+.mfgx-footer__logo{
+  height: 48px;   /* 你想更小就改 36/28 */
+  width: auto;
+  flex: 0 0 auto;
+}
+
+.mfgx-footer__text{
+  flex: 1 1 auto;
+  font-size: 13px;
+  line-height: 1.5;
+}

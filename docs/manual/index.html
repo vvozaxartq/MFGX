@@ -1,0 +1,885 @@
+
+<!doctype html>
+<html lang="zh-TW" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+        <link rel="next" href="CreateScript.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>MFGX 系統操作說明</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="stylesheets/extra.css">
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mfgx" class="md-skip">
+          跳轉到
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="頁首">
+    <a href="index.html" title="MFGX 系統操作說明" class="md-header__button md-logo" aria-label="MFGX 系統操作說明" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MFGX 系統操作說明
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              MFGX 系統簡介
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜尋" placeholder="搜尋" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="搜尋">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清除" aria-label="清除" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜尋引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="導覽列" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="index.html" title="MFGX 系統操作說明" class="md-nav__button md-logo" aria-label="MFGX 系統操作說明" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    MFGX 系統操作說明
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MFGX 系統簡介
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="index.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MFGX 系統簡介
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目錄">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目錄
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        快速索引
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 系統定位與適用場景
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 主要特點
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 名詞與核心概念
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 系統架構（分層）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-oop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 物件導向設計（OOP）與擴展點
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 物件導向設計（OOP）與擴展點">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 核心抽象（抽象類別/介面）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-inheritance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 繼承（Inheritance）：用於「共通骨架 + 專案差異」
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-composition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 組合（Composition）：用於「設備/服務可替換」
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 典型關係
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 系統擴充方式
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 系統需求
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 系統需求">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 軟體需求
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 硬體需求（基本建議）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="CreateScript.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    建立新腳本
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="ConfigEditor.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    環境變數編輯
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目錄">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目錄
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        快速索引
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 系統定位與適用場景
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 主要特點
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 名詞與核心概念
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 系統架構（分層）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-oop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 物件導向設計（OOP）與擴展點
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 物件導向設計（OOP）與擴展點">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 核心抽象（抽象類別/介面）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-inheritance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 繼承（Inheritance）：用於「共通骨架 + 專案差異」
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-composition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 組合（Composition）：用於「設備/服務可替換」
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 典型關係
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 系統擴充方式
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 系統需求
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 系統需求">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 軟體需求
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 硬體需求（基本建議）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="mfgx">MFGX 系統簡介<a class="headerlink" href="#mfgx" title="Permanent link">&para;</a></h1>
+<p>MFGX 是一套製造環境用的自動化測試系統（Automatic Test System），用於執行產品測試流程與品質控管。<br />
+核心目標是：<strong>配方化流程（Recipe/TestPlan）+ 可擴展腳本（Scripts）+ 穩定的設備整合與資料記錄（Logging/Traceability）</strong>。</p>
+<hr />
+<h2 id="_1">快速索引<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="#system-position">1. 系統定位與適用場景</a></li>
+<li><a href="#key-features">2. 主要特點</a></li>
+<li><a href="#terminology">3. 名詞與核心概念</a></li>
+<li><a href="#architecture">4. 系統架構（分層）</a></li>
+<li><a href="#oop">5. 物件導向設計（OOP）與擴展點</a></li>
+<li><a href="#requirements">6. 系統需求</a></li>
+</ul>
+<hr />
+<h2 id="1">1. 系統定位與適用場景<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<p><a id="system-position"></a></p>
+<p><strong>MFGX</strong> 主要應用於產線/實驗室測試站台，支援：
+- 多設備整合：DUT、IO 卡、CCD 相機、Motion 馬達、通訊介面等
+- 配方化流程：以 Recipe/TestPlan 組織整體測試步驟與節點
+- 多 DUT 並行與圓盤（Rotary）型產線：包含多工位/輪轉/上下料節奏控制等</p>
+<hr />
+<h2 id="2">2. 主要特點<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
+<p><a id="key-features"></a></p>
+<ul>
+<li><strong>多設備支援（Multi-Device Support）</strong>：同時控制與測試多個 DUT（Device Under Test）。</li>
+<li><strong>配方化流程（Recipe/TestPlan）</strong>：以樹狀流程定義節點與參數，降低「寫死流程」的維護成本。</li>
+<li><strong>靈活腳本架構（Flexible Scripts）</strong>：以 Script 類別庫擴展功能（通訊、量測、判定、通用工具）。</li>
+<li><strong>人性化操作介面 (User-friendly UI)</strong>：以直覺化的操作流程呈現測試步驟與提示資訊，支援單步/逐段執行以利工程除錯與快速定位問題，並可在流程中顯示影像/截圖（例如相機畫面、比對結果、錯誤示意），提升導入效率並降低現場誤操作風險。</li>
+<li><strong>權限管理（Permission Management）</strong>：多層級使用者權限與操作限制。</li>
+<li><strong>資料記錄（Data Logging / Traceability）</strong>：Log、CSV、影像、報表與備份路徑策略。</li>
+</ul>
+<hr />
+<h2 id="3">3. 名詞與核心概念<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
+<p><a id="terminology"></a></p>
+<ul>
+<li><strong>Recipe / TestPlan</strong>：流程配方，定義容器與腳本節點、參數、Spec 與 FailJump/跳轉策略。</li>
+<li><strong>Script</strong>：最小功能單元，負責設備通訊、量測、判定或通用功能（例如檔案、字串、等待、比對等）。</li>
+<li><strong>Container</strong>：流程組織單元，負責「序列/並行/重試/條件/例外」等結構控制。</li>
+<li><strong>DUT</strong>：待測物（Device Under Test），通常對應一個裝置實例 + UI Dashboard + 測試狀態/資料容器。</li>
+<li><strong>Dashboard</strong>：每個 DUT 對應的 UI 顯示區（TreeView/DataGridView/Log/狀態燈等）。</li>
+</ul>
+<hr />
+<h2 id="4">4. 系統架構（分層）<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
+<p><a id="architecture"></a></p>
+<p>MFGX 通常可視為「UI → 流程/配方 → 腳本引擎 → 設備整合 → 資料落地」的分層結構：</p>
+<div class="highlight"><pre><span></span><code>MFGX 系統
+├── UI Layer（使用者介面）
+│   ├── 主視窗 / Login / 配方管理 / Dashboard
+│
+├── Business Layer（業務邏輯）
+│   ├── RecipeManagement（配方載入/管理）
+│   ├── Global / Context（全域狀態、環境、共用資源）
+│   ├── DUT_BASE（DUT 生命週期/資料/狀態）
+│   └── RotaryTestController（圓盤/多工位節奏協調）
+│
+├── Execution Layer（執行引擎）
+│   ├── Container（流程結構：序列/並行/重試/條件）
+│   └── ScriptBase（腳本節點：Pre / Process / Post）
+│
+├── Device Layer（設備整合）
+│   ├── DUT Devices（被測裝置）
+│   ├── IO Devices（DI/DO、Modbus 等）
+│   ├── CCD Cameras（取像、判讀）
+│   └── Motion（馬達、定位、教導）
+│
+└── Data Layer（資料層）
+    ├── INI/JSON（配置/環境變數/配方）
+    ├── Logs/CSV/Image（測試記錄/追溯）
+    └── Reports/DB（報表/SQLite 等）
+</code></pre></div>
+<hr />
+<h2 id="5-oop">5. 物件導向設計（OOP）與擴展點<a class="headerlink" href="#5-oop" title="Permanent link">&para;</a></h2>
+<p><a id="oop"></a></p>
+<p>MFGX 的可維護性與可擴展性主要來自 <strong>OOP 的抽象/繼承/組合</strong>。</p>
+<h3 id="51">5.1 核心抽象（抽象類別/介面）<a class="headerlink" href="#51" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>DUT_BASE（抽象/基底類）</strong><br />
+  定義 DUT 的共通行為：狀態、資料容器、UI Dashboard 綁定、測試生命週期（初始化/開始/結束/清理）。</li>
+<li><strong>ScriptBase（抽象/基底類）</strong><br />
+  定義腳本節點的共通框架：參數取得、通用紀錄、Spec 檢查、錯誤處理、Pre/Process/Post 三段式。</li>
+<li><strong>Container（流程結構類）</strong><br />
+  負責「如何跑」：序列、並行、重試、條件分支、FailJump/例外跳轉等流程控制。</li>
+</ul>
+<h3 id="52-inheritance">5.2 繼承（Inheritance）：用於「共通骨架 + 專案差異」<a class="headerlink" href="#52-inheritance" title="Permanent link">&para;</a></h3>
+<p>典型做法：
+- 新增某產品 DUT：<code>class DUT_XXX : DUT_BASE</code>
+- 新增某功能腳本：<code>class Script_YYY : ScriptBase</code></p>
+<p><strong>建議</strong>：把共通流程與規範固定在基底類，子類只實作差異處（通訊、指令、量測與判定）。</p>
+<h3 id="53-composition">5.3 組合（Composition）：用於「設備/服務可替換」<a class="headerlink" href="#53-composition" title="Permanent link">&para;</a></h3>
+<p>建議以組合方式讓 DUT/Script 取得服務：
+- DUT 持有（has-a）Service：CameraService、MotionService、IOService、CommService…
+- Script 透過 Context/ServiceLocator/DI 取得服務</p>
+<p><strong>優點</strong>：設備更換或通訊方式替換時，變更集中在 Service，不會讓 DUT/Script 失控膨脹。</p>
+<h3 id="54">5.4 典型關係<a class="headerlink" href="#54" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>Recipe/TestPlan
+   └─ Container（控制流程：序列/並行/條件）
+        └─ ScriptBase（節點骨架）
+             └─ Script_xxx（專案/設備實作）
+
+DUT_BASE（DUT骨架/資料/狀態）
+   ├─ Dashboard（UI呈現）
+   └─ Services/Devices（Camera/IO/Motion/Comm...）
+</code></pre></div>
+<h3 id="55">5.5 系統擴充方式<a class="headerlink" href="#55" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>新增 DUT</strong>：繼承 <code>DUT_BASE</code>，補上連線/初始化/資料與 UI 綁定策略</li>
+<li><strong>新增 Script</strong>：繼承 <code>ScriptBase</code>，實作測項邏輯與 Spec 判定</li>
+<li><strong>新增流程結構</strong>：擴展/配置 <code>Container</code>（並行、重試策略、FailJump 邏輯）</li>
+<li><strong>新增設備整合</strong>：以 Service/Adapter 封裝通訊與操作（讓上層保持穩定）</li>
+<li><strong>擴展點（Extension Point）</strong>：MFGX 的核心設計是「流程配方化 + 功能模組化 + 設備解耦」,可以「安全地新增功能」</li>
+</ul>
+<hr />
+<h2 id="6">6. 系統需求<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
+<p><a id="requirements"></a></p>
+<h3 id="61">6.1 軟體需求<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Operating System</strong>：Windows 7 或更新版本</li>
+<li><strong>.NET Framework</strong>：.NET Framework 4.7.2（或更新版本，依專案實際為準）</li>
+</ul>
+<h3 id="62">6.2 硬體需求（基本建議）<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>CPU</strong>：Intel Core i3 或更高</li>
+<li><strong>RAM</strong>：4GB 或更多（若含影像處理/多 DUT 建議更高）</li>
+<li><strong>Disk</strong>：至少 1GB（視 Log/影像量調整）</li>
+<li><strong>Display</strong>：1280×720 或更高</li>
+<li><strong>外設</strong>：依站別需求（IO 卡、相機、馬達控制器、掃碼槍等）</li>
+</ul>
+<hr />
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    <div class="md-footer-meta md-typeset">
+      <div class="md-footer-meta__inner md-grid">
+        <div class="md-copyright">
+
+
+          <div class="mfgx-footer">
+            <img src="img/logo.jpg" class="mfgx-footer__logo" alt="Company Logo" style="height:64px; width:auto;" />
+		
+	    <div class="mfgx-footer__text">
+            <div class="mfgx-footer__copyright">© 2026 Lite-On Technology Corp. All rights reserved.</div>
+            <div><strong>Document Title:</strong> MFGX Operation Guide</div>
+            <div><strong>Maintenance:</strong> SLA / MIS Team</div>
+            <div><strong>Updated:</strong> 2026-01-17</div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["content.code.copy"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u8907\u88fd", "clipboard.copy": "\u8907\u88fd", "search.result.more.one": "\u6b64\u9801\u5c1a\u6709 1 \u500b\u7b26\u5408\u7684\u9805\u76ee", "search.result.more.other": "\u6b64\u9801\u5c1a\u6709 # \u500b\u7b26\u5408\u7684\u9805\u76ee", "search.result.none": "\u6c92\u6709\u7b26\u5408\u7684\u9805\u76ee", "search.result.one": "\u627e\u5230 1 \u500b\u7b26\u5408\u7684\u9805\u76ee", "search.result.other": "\u627e\u5230 # \u500b\u7b26\u5408\u7684\u9805\u76ee", "search.result.placeholder": "\u6253\u5b57\u9032\u884c\u641c\u5c0b", "search.result.term.missing": "\u7f3a\u5c11\u5b57\u8a5e", "select.version": "\u9078\u64c7\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
