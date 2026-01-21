@@ -206,7 +206,7 @@ namespace AutoTestSystem.Script
                     tmpDut.DutDashboard.MemoryDataClear(tmpDut);
                     if (GlobalNew.RunMode == 0)
                         tmpDut.DutDashboard.ResetDutInfo(tmpDut);
-                    if (GlobalNew.RunMode == 1 || GlobalNew.RunMode == 2)
+                    if (GlobalNew.RunMode == 1 || GlobalNew.RunMode == 2 || GlobalNew.RunMode == 3)
                         tmpDut.DutDashboard.SaveRichTextPro(tmpDut, tmpDut.DutDashboard.DutLogRichTextBox, true);
                     if (i>0)
                         tmpDut.DutDashboard.SetInfoTextboxMessage($"Cycle({i})");
