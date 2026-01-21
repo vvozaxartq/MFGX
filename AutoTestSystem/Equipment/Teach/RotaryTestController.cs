@@ -45,6 +45,12 @@ namespace AutoTestSystem.Equipment.Teach
         [Browsable(false)]
         public List<DUT_BASE> UnitsOnDisk { get; set; } = new List<DUT_BASE>();
 
+        [Category("Param"), Description("選擇DUT類型"), TypeConverter(typeof(DutTypeList))]
+        public string DutType { get; set; } = "";
+
+        [Category("Param"), Description("設定DUT數量")]
+        public int DutCount { get; set; } = 1;
+
         [Category("Param"), Description("設定Active站")]
         public List<bool> ActiveList { get; set; } = new List<bool>();
 
@@ -168,20 +174,67 @@ namespace AutoTestSystem.Equipment.Teach
             }
 
             // 初始化 DUTs
-            var duts = GlobalNew.Devices.Values.OfType<DUT_BASE>().ToList();
-            if (duts.Count == 0)
+            if (string.IsNullOrWhiteSpace(DutType))
             {
-                MessageBox.Show("沒有任何 DUT_BASE 裝置");
+                MessageBox.Show("請先選擇 DUT 類型");
                 return false;
             }
 
-            foreach (var dut in duts)
+            if (DutCount <= 0)
+            {
+                MessageBox.Show("DUT 數量必須大於 0");
+                return false;
+            }
+
+            var duts = GlobalNew.Devices.Values
+                .OfType<DUT_BASE>()
+                .Where(dut => string.Equals(dut.GetType().Name, DutType, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            if (duts.Count == 0)
+            {
+                MessageBox.Show($"沒有任何 {DutType} 類型的 DUT 裝置");
+                return false;
+            }
+
+            if (duts.Count < DutCount)
+            {
+                MessageBox.Show($"DUT 數量不足，需 {DutCount} 台，目前僅有 {duts.Count} 台");
+                return false;
+            }
+
+            foreach (var dut in duts.Take(DutCount))
             {
                 UnitsOnDisk.Add(dut);
                 dut.testUnit.InitializeStations(MotionSegments.Count);
             }
 
             return true;
+        }
+
+        public class DutTypeList : TypeConverter
+        {
+            public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+            {
+                var types = typeof(DUT_BASE).Assembly
+                    .GetTypes()
+                    .Where(type => typeof(DUT_BASE).IsAssignableFrom(type) && !type.IsAbstract)
+                    .Select(type => type.Name)
+                    .OrderBy(name => name)
+                    .ToList();
+
+                types.Insert(0, string.Empty);
+                return new StandardValuesCollection(types);
+            }
+
+            public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+            {
+                return true;
+            }
+
+            public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
+            {
+                return true;
+            }
         }
 
 
