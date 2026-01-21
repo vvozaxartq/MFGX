@@ -162,6 +162,22 @@ namespace AutoTestSystem
                                                                           // 建一個 Task 清單
                                                                           // 直接用 LINQ 撈出所有要跑的 Task，並一次等待它們
                 }
+                if (GlobalNew.RunMode == 3)
+                {
+                    var controller = GlobalNew.Devices.Values.OfType<MultiDutTestController>().FirstOrDefault();
+                    if (controller == null)
+                    {
+                        MessageBox.Show("Not Found MultiDutTestController Device");
+                        return;
+                    }
+
+                    if (!controller.Start())
+                    {
+                        return;
+                    }
+
+                    StartBtn.Image = Properties.Resources.icons8_stop_30; // 換成停止圖示
+                }
 
             }
             else
@@ -197,6 +213,20 @@ namespace AutoTestSystem
 
                     //都結束且停後，重置旗標在這邊下是因為如果進處方運行單步時這個旗標會影響單步運行
                     //GlobalNew.g_shouldStop = false;
+                }
+                else if (GlobalNew.RunMode == 3)
+                {
+                    GlobalNew.g_shouldStop = true;
+                    StartBtn.Enabled = false; // 防止重複點擊
+                    StartBtn.Image = Properties.Resources.icons8_play_30;
+                    var controller = GlobalNew.Devices.Values.OfType<MultiDutTestController>().FirstOrDefault();
+                    if (controller != null)
+                    {
+                        await controller.StopAsync();
+                    }
+
+                    StartBtn.Enabled = true;
+                    GlobalNew.g_shouldStop = false;
                 }
             }
         }
@@ -452,6 +482,10 @@ namespace AutoTestSystem
                 StartBtn.Enabled = true;
             }
             else if (GlobalNew.RunMode == 2)
+            {
+                StartBtn.Enabled = true;
+            }
+            else if (GlobalNew.RunMode == 3)
             {
                 StartBtn.Enabled = true;
             }
@@ -751,7 +785,7 @@ namespace AutoTestSystem
             //    }
             //}
             //**********************************
-            if ((GlobalNew.RunMode == 2 || GlobalNew.RunMode == 1)  && GlobalNew.g_isRunning)
+            if ((GlobalNew.RunMode == 2 || GlobalNew.RunMode == 1 || GlobalNew.RunMode == 3)  && GlobalNew.g_isRunning)
             {
                 //GlobalNew.ShowMessage("請中止運行，再進行初始化及復歸", "錯誤", MessageBoxIcon.Error);
                 MessageBox.Show(
@@ -902,7 +936,7 @@ namespace AutoTestSystem
                 }          
             }
 
-            if(GlobalNew.RunMode == 1 || GlobalNew.RunMode == 2)
+            if(GlobalNew.RunMode == 1 || GlobalNew.RunMode == 2 || GlobalNew.RunMode == 3)
             {
                 foreach (var value in GlobalNew.Devices.Values)
                 {

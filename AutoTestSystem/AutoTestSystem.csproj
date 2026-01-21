@@ -471,6 +471,7 @@
     <Compile Include="Equipment\Teach\TCPTeach.cs" />
     <Compile Include="Equipment\Teach\IOTeach.cs" />
     <Compile Include="Equipment\Teach\RotaryTestController.cs" />
+    <Compile Include="Equipment\Teach\MultiDutTestController.cs" />
     <Compile Include="Equipment\Teach\MotionTeach.cs" />
     <Compile Include="I2CRW_Form.cs">
       <SubType>Form</SubType>
